@@ -4,6 +4,7 @@ import { useData } from '../../context/DataContext'
 import { deleteHolding, refreshHoldingPrice } from '../../lib/holdings'
 import HoldingForm from '../../components/portfolio/HoldingForm'
 import HoldingCard from '../../components/portfolio/HoldingCard'
+import BuyMoreForm from '../../components/portfolio/BuyMoreForm'
 
 export default function Portfolio() {
   const { holdings, loading, globalStopLoss, refetch } = useData()
@@ -11,6 +12,7 @@ export default function Portfolio() {
   const [brokerFilter, setBrokerFilter] = useState('All')
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState(null)
+  const [buyingHolding, setBuyingHolding] = useState(null)
   const [refreshingId, setRefreshingId] = useState(null)
   const [refreshingAll, setRefreshingAll] = useState(false)
   const [notice, setNotice] = useState('')
@@ -56,9 +58,11 @@ export default function Portfolio() {
   }
 
   async function handleRefreshAll() {
-    const withTickers = holdings.filter((h) => h.ticker)
+    const withTickers = holdings.filter(
+      (h) => h.type === 'Stocks (PSE)' && h.ticker
+    )
     if (!withTickers.length) {
-      setNotice('No holdings with a ticker to refresh.')
+      setNotice('No PSE holdings with a ticker to refresh.')
       return
     }
     setRefreshingAll(true)
@@ -154,6 +158,7 @@ export default function Portfolio() {
               onRefresh={handleRefreshOne}
               onEdit={openEdit}
               onDelete={handleDelete}
+              onBuyMore={setBuyingHolding}
             />
           ))}
         </div>
@@ -164,6 +169,14 @@ export default function Portfolio() {
           holding={editing}
           defaultStopLoss={globalStopLoss}
           onClose={() => setFormOpen(false)}
+          onSaved={refetch}
+        />
+      )}
+
+      {buyingHolding && (
+        <BuyMoreForm
+          holding={buyingHolding}
+          onClose={() => setBuyingHolding(null)}
           onSaved={refetch}
         />
       )}

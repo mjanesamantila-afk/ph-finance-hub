@@ -32,17 +32,19 @@ export const BROKER_COLORS = {
   "Metrobank": "#993C1D"
 };
 
-export const DIGITAL_BANKS = ["Maribank", "CIMB", "Maya", "GoTyme"];
+export const DIGITAL_BANKS = ["Maribank", "CIMB", "Maya", "GoTyme", "GCash", "BDO"];
 
 export const DB_COLORS = {
   "Maribank": "#E24B4A",
   "CIMB": "#1D9E75",
   "Maya": "#3266ad",
-  "GoTyme": "#BA7517"
+  "GoTyme": "#BA7517",
+  "GCash": "#1273E6",
+  "BDO": "#0A2472"
 };
 
 export const SPENDING_CATS = {
-  manual: ["Tithes","Groceries","Parent Allowance","Transportation","Personal Care","Dining Out","Medical","Clothing","Education","Others"],
+  manual: ["Generosity","Groceries","Parent Allowance","Transportation","Personal Care","Dining Out","Medical","Clothing","Education","Others"],
   digital: ["Meralco","Internet","Water","Phone/Load","Netflix/Streaming","Pag-IBIG","SSS","PhilHealth","Others"]
 };
 

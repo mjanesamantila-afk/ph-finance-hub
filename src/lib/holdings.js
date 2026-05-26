@@ -57,3 +57,35 @@ export async function refreshHoldingPrice(holding) {
   if (error) throw error
   return { ok: true, price }
 }
+
+// Add another purchase to an existing holding (dollar/peso-cost averaging).
+// Accumulates total shares and total invested, and recomputes the average
+// entry price. The most recent buy price becomes the current price if none set.
+export async function buyMoreHolding(holding, { shares, price }) {
+  const addShares = Number(shares) || 0
+  const addPrice = Number(price) || 0
+  if (addShares <= 0 || addPrice <= 0) return
+
+  const prevShares = Number(holding.shares) || 0
+  const prevInvested =
+    Number(holding.invested) || prevShares * (Number(holding.price_per_share) || 0)
+
+  const newShares = prevShares + addShares
+  const newInvested = prevInvested + addShares * addPrice
+  const newAvgPrice = newShares > 0 ? newInvested / newShares : 0
+
+  const existingPrice = Number(holding.last_price) || 0
+  const currentPrice = existingPrice > 0 ? existingPrice : addPrice
+
+  const { error } = await supabase
+    .from('holdings')
+    .update({
+      shares: newShares,
+      invested: newInvested,
+      price_per_share: newAvgPrice,
+      last_price: currentPrice,
+      current_value: newShares * currentPrice,
+    })
+    .eq('id', holding.id)
+  if (error) throw error
+}

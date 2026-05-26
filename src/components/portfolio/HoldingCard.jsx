@@ -1,4 +1,4 @@
-import { RefreshCw, Pencil, Trash2, AlertTriangle, Loader2 } from 'lucide-react'
+import { RefreshCw, Pencil, Trash2, AlertTriangle, Loader2, ShoppingCart } from 'lucide-react'
 import { COLORS, BROKER_COLORS } from '../../config/constants'
 import { deriveHolding, formatMoney } from '../../lib/finance'
 
@@ -9,6 +9,7 @@ export default function HoldingCard({
   onRefresh,
   onEdit,
   onDelete,
+  onBuyMore,
 }) {
   const m = deriveHolding(holding, globalStopLoss)
   const cur = holding.currency || 'PHP'
@@ -76,8 +77,15 @@ export default function HoldingCard({
         {formatMoney(m.currentPrice, cur)}
       </div>
 
-      <div className="mt-3 flex gap-2">
-        {holding.ticker && (
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          onClick={() => onBuyMore(holding)}
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100"
+        >
+          <ShoppingCart size={13} />
+          Buy More
+        </button>
+        {holding.type === 'Stocks (PSE)' && holding.ticker && (
           <button
             onClick={() => onRefresh(holding)}
             disabled={refreshing}

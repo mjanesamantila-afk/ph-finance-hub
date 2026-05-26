@@ -10,7 +10,7 @@ export default function DigitalBanks() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-5 py-4">
-        <span className="text-sm text-slate-500">Total across digital banks</span>
+        <span className="text-sm text-slate-500">Total across banks</span>
         <span className="text-xl font-semibold text-slate-900">
           {formatMoney(totalBalance)}
         </span>

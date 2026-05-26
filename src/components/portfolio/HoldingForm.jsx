@@ -168,14 +168,14 @@ export default function HoldingForm({ holding, defaultStopLoss = 10, onClose, on
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Invested (optional)">
+            <Field label="Current Price / Share">
               <input
                 type="number"
                 step="any"
-                value={values.invested}
-                onChange={(e) => update('invested', e.target.value)}
+                value={values.last_price}
+                onChange={(e) => update('last_price', e.target.value)}
                 className={inputCls}
-                placeholder="auto: shares × entry"
+                placeholder="latest price per share"
               />
             </Field>
             <Field label="Current Value (optional)">
@@ -185,17 +185,20 @@ export default function HoldingForm({ holding, defaultStopLoss = 10, onClose, on
                 value={values.current_value}
                 onChange={(e) => update('current_value', e.target.value)}
                 className={inputCls}
+                placeholder="auto: shares × current price"
               />
             </Field>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Date Added">
+            <Field label="Invested (optional)">
               <input
-                type="date"
-                value={values.date_added}
-                onChange={(e) => update('date_added', e.target.value)}
+                type="number"
+                step="any"
+                value={values.invested}
+                onChange={(e) => update('invested', e.target.value)}
                 className={inputCls}
+                placeholder="auto: shares × entry"
               />
             </Field>
             <Field label="Stop Loss %">
@@ -208,6 +211,15 @@ export default function HoldingForm({ holding, defaultStopLoss = 10, onClose, on
               />
             </Field>
           </div>
+
+          <Field label="Date Added">
+            <input
+              type="date"
+              value={values.date_added}
+              onChange={(e) => update('date_added', e.target.value)}
+              className={inputCls}
+            />
+          </Field>
 
           {error && (
             <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>

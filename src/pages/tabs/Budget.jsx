@@ -8,7 +8,7 @@ import MonthlySummary from '../../components/budget/MonthlySummary'
 const SUBTABS = [
   { key: 'money', label: 'Money System', component: MoneySystem },
   { key: 'spending', label: 'Spending', component: Spending },
-  { key: 'banks', label: 'Digital Banks', component: DigitalBanks },
+  { key: 'banks', label: 'Banks', component: DigitalBanks },
   { key: 'ledger', label: 'Ledger', component: Ledger },
   { key: 'summary', label: 'Monthly Summary', component: MonthlySummary },
 ]

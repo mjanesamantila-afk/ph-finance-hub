@@ -4,7 +4,7 @@ import { useData } from '../../context/DataContext'
 import { formatMoney } from '../../lib/finance'
 
 const BUCKETS = [
-  { key: 'tithes', label: 'Tithes', color: '#D4537E' },
+  { key: 'tithes', label: 'Generosity', color: '#D4537E' },
   { key: 'invest', label: 'Invest', color: '#1D9E75' },
   { key: 'savings', label: 'Savings', color: '#3266ad' },
   { key: 'spend', label: 'Spend', color: '#E8A020' },

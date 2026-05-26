@@ -22,10 +22,10 @@ export default function MonthlySummary() {
       (e) => e.direction === 'out' && monthKeyOf(e.date) === month
     )
     const tithesActual = monthOut
-      .filter((e) => e.category === 'Tithes')
+      .filter((e) => e.category === 'Generosity')
       .reduce((s, e) => s + (Number(e.amount) || 0), 0)
     const spendActual = monthOut
-      .filter((e) => e.category !== 'Tithes')
+      .filter((e) => e.category !== 'Generosity')
       .reduce((s, e) => s + (Number(e.amount) || 0), 0)
 
     const bankIn = bankTransactions
@@ -37,7 +37,7 @@ export default function MonthlySummary() {
       .reduce((s, h) => s + (Number(h.invested) || 0), 0)
 
     const rows = [
-      { key: 'tithes', label: 'Tithes', plan: (income * system.tithes) / 100, actual: tithesActual },
+      { key: 'tithes', label: 'Generosity', plan: (income * system.tithes) / 100, actual: tithesActual },
       { key: 'invest', label: 'Invest', plan: (income * system.invest) / 100, actual: investActual },
       { key: 'savings', label: 'Savings', plan: (income * system.savings) / 100, actual: bankIn },
       { key: 'spend', label: 'Spend', plan: (income * system.spend) / 100, actual: spendActual },
@@ -139,7 +139,7 @@ export default function MonthlySummary() {
         {/* Digital banks snapshot */}
         <div className="rounded-xl border border-slate-200 bg-white p-5">
           <div className="flex items-center justify-between">
-            <h2 className="font-medium text-slate-900">Digital Banks Snapshot</h2>
+            <h2 className="font-medium text-slate-900">Banks Snapshot</h2>
             <span className="text-sm font-semibold text-slate-900">
               {formatMoney(banksTotal)}
             </span>
