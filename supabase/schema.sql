@@ -4,7 +4,7 @@
 
 create table holdings (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users not null,
+  user_id uuid references auth.users on delete cascade not null,
   type text not null,
   broker text,
   name text not null,
@@ -23,7 +23,7 @@ create table holdings (
 
 create table ledger_entries (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users not null,
+  user_id uuid references auth.users on delete cascade not null,
   date date not null,
   description text,
   category text,
@@ -35,7 +35,7 @@ create table ledger_entries (
 
 create table spend_budgets (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users not null,
+  user_id uuid references auth.users on delete cascade not null,
   category text not null,
   budget_amount numeric default 0,
   unique(user_id, category)
@@ -43,7 +43,7 @@ create table spend_budgets (
 
 create table digital_banks (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users not null,
+  user_id uuid references auth.users on delete cascade not null,
   bank_name text not null,
   balance numeric default 0,
   interest_rate numeric default 0,
@@ -53,7 +53,7 @@ create table digital_banks (
 
 create table bank_transactions (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users not null,
+  user_id uuid references auth.users on delete cascade not null,
   bank_name text not null,
   direction text not null check (direction in ('in','out')),
   amount numeric not null,
@@ -64,7 +64,7 @@ create table bank_transactions (
 
 create table interest_history (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users not null,
+  user_id uuid references auth.users on delete cascade not null,
   bank_name text not null,
   month text not null,
   interest numeric not null,
@@ -74,7 +74,7 @@ create table interest_history (
 );
 
 create table user_settings (
-  user_id uuid primary key references auth.users not null,
+  user_id uuid primary key references auth.users on delete cascade not null,
   income numeric default 0,
   money_system jsonb default '{"tithes":10,"invest":20,"savings":20,"spend":50}',
   global_stop_loss numeric default 10,
