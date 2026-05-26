@@ -51,8 +51,14 @@ export default function HoldingForm({ holding, defaultStopLoss = 10, onClose, on
   // Share-based holdings derive their totals from prices, so the user never
   // types a "current value" that could be confused with a per-share price.
   const hasShares = Number(values.shares) > 0
+  const sharesNum = Number(values.shares) || 0
+  const investedNum = Number(values.invested) || 0
+  // Cost per share comes from what you actually paid ÷ shares (matches how
+  // GoTrade-style fractional investing works, fees included).
+  const avgCost =
+    sharesNum > 0 && investedNum > 0 ? investedNum / sharesNum : Number(values.price_per_share) || 0
   const previewSource = hasShares
-    ? { ...values, invested: '', current_value: '' }
+    ? { ...values, current_value: '', price_per_share: avgCost }
     : values
   const m = deriveHolding(previewSource, Number(values.stop_loss_pct) || defaultStopLoss)
   const gainPositive = m.gain >= 0
@@ -76,7 +82,13 @@ export default function HoldingForm({ holding, defaultStopLoss = 10, onClose, on
     setBusy(true)
     // For share-based holdings, let invested/current value be derived from
     // shares × prices (also overwrites any stale value saved earlier).
-    const payload = hasShares ? { ...values, invested: '', current_value: '' } : values
+    const payload = hasShares
+      ? {
+          ...values,
+          current_value: '',
+          price_per_share: avgCost > 0 ? String(avgCost) : values.price_per_share,
+        }
+      : values
     try {
       if (isEdit) {
         await updateHolding(holding.id, payload)
@@ -184,14 +196,14 @@ export default function HoldingForm({ holding, defaultStopLoss = 10, onClose, on
           {hasShares ? (
             <>
               <div className="grid grid-cols-2 gap-4">
-                <Field label="Avg Buy Price / Share">
+                <Field label="Amount Invested (total)">
                   <input
                     type="number"
                     step="any"
-                    value={values.price_per_share}
-                    onChange={(e) => update('price_per_share', e.target.value)}
+                    value={values.invested}
+                    onChange={(e) => update('invested', e.target.value)}
                     className={inputCls}
-                    placeholder="what you paid per share"
+                    placeholder="what you paid, incl. fees"
                   />
                 </Field>
                 <Field label="Current Price / Share">
@@ -211,6 +223,10 @@ export default function HoldingForm({ holding, defaultStopLoss = 10, onClose, on
                 <div className="flex justify-between">
                   <span className="text-slate-500">Invested</span>
                   <span className="text-slate-700">{formatMoney(m.invested, values.currency)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Avg cost / share</span>
+                  <span className="text-slate-700">{formatMoney(avgCost, values.currency)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Current Value</span>

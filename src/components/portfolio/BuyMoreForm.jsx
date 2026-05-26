@@ -6,13 +6,13 @@ import { formatMoney } from '../../lib/finance'
 export default function BuyMoreForm({ holding, onClose, onSaved }) {
   const cur = holding.currency || 'PHP'
   const [shares, setShares] = useState('')
-  const [price, setPrice] = useState('')
+  const [amount, setAmount] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
   const addShares = Number(shares) || 0
-  const addPrice = Number(price) || 0
-  const addCost = addShares * addPrice
+  const addCost = Number(amount) || 0
+  const addPrice = addShares > 0 ? addCost / addShares : 0
 
   const prevShares = Number(holding.shares) || 0
   const prevInvested =
@@ -23,8 +23,8 @@ export default function BuyMoreForm({ holding, onClose, onSaved }) {
 
   async function submit(e) {
     e.preventDefault()
-    if (addShares <= 0 || addPrice <= 0) {
-      setError('Enter how many shares you bought and the price per share.')
+    if (addShares <= 0 || addCost <= 0) {
+      setError('Enter how many shares you bought and the amount you invested.')
       return
     }
     setBusy(true)
@@ -69,13 +69,13 @@ export default function BuyMoreForm({ holding, onClose, onSaved }) {
             </label>
             <label className="block">
               <span className="mb-1 block text-xs font-medium text-slate-600">
-                Price / Share ({cur})
+                Amount Invested ({cur})
               </span>
               <input
                 type="number"
                 step="any"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
                 className={inputCls}
               />
             </label>
