@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { X, Loader2 } from 'lucide-react'
 import { INVESTMENT_TYPES, BROKERS } from '../../config/constants'
 import { createHolding, updateHolding } from '../../lib/holdings'
+import { deriveHolding, formatMoney } from '../../lib/finance'
 import { useAuth } from '../../context/AuthContext'
 
 const EMPTY = {
@@ -47,6 +48,15 @@ export default function HoldingForm({ holding, defaultStopLoss = 10, onClose, on
 
   const brokerOptions = BROKERS[values.type] ?? []
 
+  // Share-based holdings derive their totals from prices, so the user never
+  // types a "current value" that could be confused with a per-share price.
+  const hasShares = Number(values.shares) > 0
+  const previewSource = hasShares
+    ? { ...values, invested: '', current_value: '' }
+    : values
+  const m = deriveHolding(previewSource, Number(values.stop_loss_pct) || defaultStopLoss)
+  const gainPositive = m.gain >= 0
+
   function update(field, value) {
     setValues((prev) => {
       const next = { ...prev, [field]: value }
@@ -64,11 +74,14 @@ export default function HoldingForm({ holding, defaultStopLoss = 10, onClose, on
     e.preventDefault()
     setError('')
     setBusy(true)
+    // For share-based holdings, let invested/current value be derived from
+    // shares × prices (also overwrites any stale value saved earlier).
+    const payload = hasShares ? { ...values, invested: '', current_value: '' } : values
     try {
       if (isEdit) {
-        await updateHolding(holding.id, values)
+        await updateHolding(holding.id, payload)
       } else {
-        await createHolding(user.id, values)
+        await createHolding(user.id, payload)
       }
       await onSaved()
       onClose()
@@ -154,51 +167,7 @@ export default function HoldingForm({ holding, defaultStopLoss = 10, onClose, on
                 value={values.shares}
                 onChange={(e) => update('shares', e.target.value)}
                 className={inputCls}
-              />
-            </Field>
-            <Field label="Entry Price / Share">
-              <input
-                type="number"
-                step="any"
-                value={values.price_per_share}
-                onChange={(e) => update('price_per_share', e.target.value)}
-                className={inputCls}
-              />
-            </Field>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Current Price / Share">
-              <input
-                type="number"
-                step="any"
-                value={values.last_price}
-                onChange={(e) => update('last_price', e.target.value)}
-                className={inputCls}
-                placeholder="latest price per share"
-              />
-            </Field>
-            <Field label="Current Value (optional)">
-              <input
-                type="number"
-                step="any"
-                value={values.current_value}
-                onChange={(e) => update('current_value', e.target.value)}
-                className={inputCls}
-                placeholder="auto: shares × current price"
-              />
-            </Field>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Invested (optional)">
-              <input
-                type="number"
-                step="any"
-                value={values.invested}
-                onChange={(e) => update('invested', e.target.value)}
-                className={inputCls}
-                placeholder="auto: shares × entry"
+                placeholder="e.g. 0.1148 or 100"
               />
             </Field>
             <Field label="Stop Loss %">
@@ -211,6 +180,82 @@ export default function HoldingForm({ holding, defaultStopLoss = 10, onClose, on
               />
             </Field>
           </div>
+
+          {hasShares ? (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Avg Buy Price / Share">
+                  <input
+                    type="number"
+                    step="any"
+                    value={values.price_per_share}
+                    onChange={(e) => update('price_per_share', e.target.value)}
+                    className={inputCls}
+                    placeholder="what you paid per share"
+                  />
+                </Field>
+                <Field label="Current Price / Share">
+                  <input
+                    type="number"
+                    step="any"
+                    value={values.last_price}
+                    onChange={(e) => update('last_price', e.target.value)}
+                    className={inputCls}
+                    placeholder="latest market price"
+                  />
+                </Field>
+              </div>
+
+              {/* Live computed totals so the result is never a surprise */}
+              <div className="space-y-1 rounded-lg bg-slate-50 px-3 py-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Invested</span>
+                  <span className="text-slate-700">{formatMoney(m.invested, values.currency)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Current Value</span>
+                  <span className="text-slate-700">
+                    {formatMoney(m.currentValue, values.currency)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Gain / Loss</span>
+                  <span
+                    className={`font-semibold ${
+                      gainPositive ? 'text-emerald-600' : 'text-red-600'
+                    }`}
+                  >
+                    {gainPositive ? '+' : ''}
+                    {formatMoney(m.gain, values.currency)} ({gainPositive ? '+' : ''}
+                    {m.gainPct.toFixed(2)}%)
+                  </span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Invested">
+                <input
+                  type="number"
+                  step="any"
+                  value={values.invested}
+                  onChange={(e) => update('invested', e.target.value)}
+                  className={inputCls}
+                  placeholder="total amount put in"
+                />
+              </Field>
+              <Field label="Current Value">
+                <input
+                  type="number"
+                  step="any"
+                  value={values.current_value}
+                  onChange={(e) => update('current_value', e.target.value)}
+                  className={inputCls}
+                  placeholder="total value now"
+                />
+              </Field>
+            </div>
+          )}
 
           <Field label="Date Added">
             <input

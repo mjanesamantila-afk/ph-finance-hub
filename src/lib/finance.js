@@ -41,8 +41,14 @@ export function deriveHolding(holding, globalStopLoss = 10) {
   const lastPrice = Number(holding?.last_price) || 0
 
   const invested = Number(holding?.invested) || shares * entry
+  // When we know shares and a current price per share, that's authoritative —
+  // current value = shares × current price. (Prevents treating a per-share
+  // price as if it were the whole holding's value.) Otherwise fall back to a
+  // manually entered total value, then to invested.
   const currentValue =
-    Number(holding?.current_value) || (lastPrice ? shares * lastPrice : invested)
+    shares > 0 && lastPrice > 0
+      ? shares * lastPrice
+      : Number(holding?.current_value) || invested
 
   const price = currentPricePerShare(holding)
   const gain = currentValue - invested
