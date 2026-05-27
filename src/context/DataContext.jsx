@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { DIGITAL_BANKS } from '../config/constants'
 import { countBreaches } from '../lib/finance'
-import { nextDueDate, daysUntil } from '../lib/dates'
+import { nextDueDate, daysUntil, monthKeyFromDate } from '../lib/dates'
 import { useAuth } from './AuthContext'
 
 const DUE_SOON_DAYS = 7
@@ -136,7 +136,9 @@ export function DataProvider({ children }) {
     () =>
       bills.filter((b) => {
         if (b.active === false) return false
-        const d = daysUntil(nextDueDate(b.due_day))
+        const due = nextDueDate(b.due_day)
+        if ((b.paid_months || []).includes(monthKeyFromDate(due))) return false
+        const d = daysUntil(due)
         return d >= 0 && d <= DUE_SOON_DAYS
       }).length,
     [bills]

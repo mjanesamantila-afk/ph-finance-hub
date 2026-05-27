@@ -7,11 +7,12 @@ import {
   Pencil,
   Trash2,
   Bell,
+  Check,
 } from 'lucide-react'
 import { useData } from '../../context/DataContext'
-import { deleteBill } from '../../lib/bills'
+import { deleteBill, setBillPaid } from '../../lib/bills'
 import { formatMoney } from '../../lib/finance'
-import { MONTH_NAMES, nextDueDate, daysUntil } from '../../lib/dates'
+import { MONTH_NAMES, nextDueDate, daysUntil, monthKeyFromDate } from '../../lib/dates'
 import BillForm from '../../components/bills/BillForm'
 import BillCalendar from '../../components/bills/BillCalendar'
 
@@ -33,12 +34,20 @@ export default function Bills() {
     return activeBills
       .map((b) => {
         const due = nextDueDate(b.due_day)
-        return { bill: b, due, days: daysUntil(due) }
+        const monthKey = monthKeyFromDate(due)
+        return {
+          bill: b,
+          due,
+          monthKey,
+          days: daysUntil(due),
+          paid: (b.paid_months || []).includes(monthKey),
+        }
       })
       .sort((a, b) => a.days - b.days)
   }, [activeBills])
 
-  const dueSoon = upcoming.filter((u) => u.days >= 0 && u.days <= DUE_SOON_DAYS)
+  // Paid bills drop off the reminders.
+  const dueSoon = upcoming.filter((u) => !u.paid && u.days >= 0 && u.days <= DUE_SOON_DAYS)
 
   function prevMonth() {
     setMonthIndex((m) => {
@@ -73,6 +82,11 @@ export default function Bills() {
     await refetch()
   }
 
+  async function handleSetPaid(bill, monthKey, paid) {
+    await setBillPaid(bill, monthKey, paid)
+    await refetch()
+  }
+
   function dueLabel(days) {
     if (days === 0) return 'Due today'
     if (days === 1) return 'Due tomorrow'
@@ -100,16 +114,28 @@ export default function Bills() {
             {dueSoon.length} bill{dueSoon.length > 1 ? 's' : ''} due in the next{' '}
             {DUE_SOON_DAYS} days
           </div>
-          <div className="mt-2 space-y-1">
-            {dueSoon.map(({ bill, due, days }) => (
-              <div key={bill.id} className="flex justify-between text-sm text-amber-900">
+          <div className="mt-2 space-y-1.5">
+            {dueSoon.map(({ bill, due, days, monthKey }) => (
+              <div
+                key={bill.id}
+                className="flex flex-wrap items-center justify-between gap-2 text-sm text-amber-900"
+              >
                 <span>
                   {bill.name}
                   {bill.amount ? ` · ${formatMoney(bill.amount)}` : ''}
                 </span>
-                <span className="font-medium">
-                  {dueLabel(days)} ({MONTH_NAMES[due.getMonth()].slice(0, 3)} {due.getDate()})
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="font-medium">
+                    {dueLabel(days)} ({MONTH_NAMES[due.getMonth()].slice(0, 3)} {due.getDate()})
+                  </span>
+                  <button
+                    onClick={() => handleSetPaid(bill, monthKey, true)}
+                    className="flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-emerald-700"
+                  >
+                    <Check size={13} />
+                    Mark as Paid
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -161,7 +187,10 @@ export default function Bills() {
           <div className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white">
             {[...bills]
               .sort((a, b) => a.due_day - b.due_day)
-              .map((b) => (
+              .map((b) => {
+                const dueMonthKey = monthKeyFromDate(nextDueDate(b.due_day))
+                const paid = (b.paid_months || []).includes(dueMonthKey)
+                return (
                 <div key={b.id} className="flex items-center gap-3 px-4 py-3">
                   <div className="flex h-9 w-9 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                     <span className="text-[9px] uppercase leading-none text-slate-400">Day</span>
@@ -183,6 +212,18 @@ export default function Bills() {
                     </div>
                   </div>
                   <button
+                    onClick={() => handleSetPaid(b, dueMonthKey, !paid)}
+                    className={`flex items-center gap-1 rounded-lg border px-2 py-1 text-xs font-medium ${
+                      paid
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                        : 'border-slate-300 text-slate-600 hover:bg-slate-100'
+                    }`}
+                    title={paid ? 'Paid this month — tap to undo' : 'Mark paid this month'}
+                  >
+                    <Check size={13} />
+                    {paid ? 'Paid' : 'Mark paid'}
+                  </button>
+                  <button
                     onClick={() => openEdit(b)}
                     className="text-slate-400 hover:text-slate-700"
                     title="Edit"
@@ -197,7 +238,8 @@ export default function Bills() {
                     <Trash2 size={15} />
                   </button>
                 </div>
-              ))}
+                )
+              })}
           </div>
         )}
       </div>

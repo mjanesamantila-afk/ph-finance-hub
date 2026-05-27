@@ -25,6 +25,11 @@ export function monthKeyOf(dateStr) {
   return (dateStr || '').slice(0, 7)
 }
 
+// Date object -> 'YYYY-MM'
+export function monthKeyFromDate(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+}
+
 export function monthLabel(monthKey) {
   const idx = Number((monthKey || '').slice(5, 7)) - 1
   return MONTH_NAMES[idx] ?? monthKey

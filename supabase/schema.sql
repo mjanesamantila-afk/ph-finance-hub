@@ -110,6 +110,7 @@ create table bills (
   category text,
   notes text,
   active boolean default true,
+  paid_months text[] default '{}',
   created_at timestamptz default now()
 );
 

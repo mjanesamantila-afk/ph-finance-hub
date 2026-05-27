@@ -1,9 +1,11 @@
-import { calendarWeeks, clampDay, WEEKDAY_LABELS } from '../../lib/dates'
+import { Check } from 'lucide-react'
+import { calendarWeeks, clampDay, monthKeyFromDate, WEEKDAY_LABELS } from '../../lib/dates'
 import { formatMoney } from '../../lib/finance'
 
 // Month calendar with bills shown on their due day.
 export default function BillCalendar({ year, monthIndex, bills, onSelectBill }) {
   const weeks = calendarWeeks(year, monthIndex)
+  const monthKey = monthKeyFromDate(new Date(year, monthIndex, 1))
 
   const today = new Date()
   const isCurrentMonth = today.getFullYear() === year && today.getMonth() === monthIndex
@@ -49,16 +51,26 @@ export default function BillCalendar({ year, monthIndex, bills, onSelectBill }) 
                     {day}
                   </div>
                   <div className="mt-0.5 space-y-0.5">
-                    {dayBills.map((b) => (
-                      <button
-                        key={b.id}
-                        onClick={() => onSelectBill(b)}
-                        className="block w-full truncate rounded bg-rose-100 px-1 py-0.5 text-left text-[10px] font-medium text-rose-700 hover:bg-rose-200"
-                        title={`${b.name}${b.amount ? ` — ${formatMoney(b.amount)}` : ''}`}
-                      >
-                        {b.name}
-                      </button>
-                    ))}
+                    {dayBills.map((b) => {
+                      const paid = (b.paid_months || []).includes(monthKey)
+                      return (
+                        <button
+                          key={b.id}
+                          onClick={() => onSelectBill(b)}
+                          className={`flex w-full items-center gap-0.5 truncate rounded px-1 py-0.5 text-left text-[10px] font-medium ${
+                            paid
+                              ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                              : 'bg-rose-100 text-rose-700 hover:bg-rose-200'
+                          }`}
+                          title={`${b.name}${b.amount ? ` — ${formatMoney(b.amount)}` : ''}${
+                            paid ? ' (paid)' : ''
+                          }`}
+                        >
+                          {paid && <Check size={10} className="shrink-0" />}
+                          <span className="truncate">{b.name}</span>
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
               )

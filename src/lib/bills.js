@@ -27,3 +27,18 @@ export async function deleteBill(id) {
   const { error } = await supabase.from('bills').delete().eq('id', id)
   if (error) throw error
 }
+
+// Mark a bill paid (or unpaid) for a given month ('YYYY-MM'). Paid status is
+// tracked per month, so the bill reappears in reminders next month.
+export async function setBillPaid(bill, monthKey, paid) {
+  const current = bill.paid_months || []
+  const next = paid
+    ? Array.from(new Set([...current, monthKey]))
+    : current.filter((m) => m !== monthKey)
+  const { error } = await supabase.from('bills').update({ paid_months: next }).eq('id', bill.id)
+  if (error) throw error
+}
+
+export function isBillPaid(bill, monthKey) {
+  return (bill?.paid_months || []).includes(monthKey)
+}
