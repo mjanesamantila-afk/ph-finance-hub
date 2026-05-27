@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react'
 import { Plus, Trash2, Loader2, ArrowDownLeft, ArrowUpRight } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import { useAuth } from '../../context/AuthContext'
-import { SPENDING_CATS, PAYMENT_METHODS } from '../../config/constants'
+import { PAYMENT_METHODS } from '../../config/constants'
+import { allSpendingCategories } from '../../lib/categories'
 import { formatMoney } from '../../lib/finance'
 import { currentMonthKey, monthKeyOf, todayISO } from '../../lib/dates'
 import { addLedgerEntry, deleteLedgerEntry } from '../../lib/budget'
@@ -24,17 +25,8 @@ export default function Ledger() {
     description: '',
   })
 
-  const custom = settings?.custom_categories ?? { manual: [], digital: [] }
-  const hidden = custom.hidden ?? { manual: [], digital: [] }
-  // De-duplicated category list, excluding any removed in the Spending tab.
-  const allCategories = [
-    ...new Set([
-      ...SPENDING_CATS.manual.filter((c) => !(hidden.manual ?? []).includes(c)),
-      ...SPENDING_CATS.digital.filter((c) => !(hidden.digital ?? []).includes(c)),
-      ...(custom.manual ?? []),
-      ...(custom.digital ?? []),
-    ]),
-  ]
+  // Same effective category list used by the Spending and Bills tabs.
+  const allCategories = allSpendingCategories(settings)
 
   const visible = useMemo(() => {
     return ledgerEntries

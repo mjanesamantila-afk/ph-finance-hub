@@ -3,6 +3,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import { useAuth } from '../../context/AuthContext'
 import { SPENDING_CATS } from '../../config/constants'
+import { spendingCategoryGroups } from '../../lib/categories'
 import { formatMoney } from '../../lib/finance'
 import { currentMonthKey, monthKeyOf } from '../../lib/dates'
 import { upsertBudget } from '../../lib/budget'
@@ -37,6 +38,17 @@ export default function Spending() {
       ),
     [ledgerEntries, month]
   )
+
+  // Totals across BOTH cash (manual) and digital, independent of the toggle.
+  const groups = spendingCategoryGroups(settings)
+  const manualSet = new Set(groups.manual)
+  const cashAllocated = groups.manual.reduce((s, c) => s + (budgetMap[c] || 0), 0)
+  const digitalAllocated = groups.digital
+    .filter((c) => !manualSet.has(c))
+    .reduce((s, c) => s + (budgetMap[c] || 0), 0)
+  const totalAllocated = cashAllocated + digitalAllocated
+  const totalSpent = monthOut.reduce((s, e) => s + (Number(e.amount) || 0), 0)
+  const overAllocated = totalAllocated > 0 && totalSpent > totalAllocated
 
   function spentFor(category) {
     return monthOut
@@ -91,6 +103,33 @@ export default function Spending() {
           <ToggleBtn active={tab === 'digital'} onClick={() => setTab('digital')}>
             Digital / Bills
           </ToggleBtn>
+        </div>
+      </div>
+
+      {/* Total allocated across both cash and digital */}
+      <div className="rounded-xl border border-slate-200 bg-white p-5">
+        <div className="flex items-center justify-between">
+          <span className="font-medium text-slate-900">Total Allocated (Cash + Digital)</span>
+          <span className="text-lg font-semibold text-slate-900">
+            {formatMoney(totalAllocated)}
+          </span>
+        </div>
+        <div className="mt-1 text-xs text-slate-400">
+          Cash {formatMoney(cashAllocated)} · Digital {formatMoney(digitalAllocated)}
+        </div>
+        <div className="mt-3 flex justify-between text-sm">
+          <span className={overAllocated ? 'font-medium text-red-600' : 'text-slate-500'}>
+            {formatMoney(totalSpent)} spent this month
+          </span>
+          <span className="text-slate-400">of {formatMoney(totalAllocated)}</span>
+        </div>
+        <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+          <div
+            className={`h-full rounded-full ${overAllocated ? 'bg-red-500' : 'bg-emerald-500'}`}
+            style={{
+              width: `${totalAllocated > 0 ? Math.min((totalSpent / totalAllocated) * 100, 100) : 0}%`,
+            }}
+          />
         </div>
       </div>
 

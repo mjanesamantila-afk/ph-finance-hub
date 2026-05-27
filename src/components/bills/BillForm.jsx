@@ -1,16 +1,19 @@
 import { useState } from 'react'
 import { X, Loader2 } from 'lucide-react'
-import { SPENDING_CATS } from '../../config/constants'
 import { createBill, updateBill } from '../../lib/bills'
+import { allSpendingCategories } from '../../lib/categories'
 import { useAuth } from '../../context/AuthContext'
+import { useData } from '../../context/DataContext'
 
 const EMPTY = { name: '', amount: '', due_day: '1', category: '', notes: '', active: true }
 
-const CATEGORY_OPTIONS = SPENDING_CATS.digital
-
 export default function BillForm({ bill, onClose, onSaved }) {
   const { user } = useAuth()
+  const { settings } = useData()
   const isEdit = Boolean(bill)
+
+  // Categories mirror the Spending tab (custom + minus removed).
+  const CATEGORY_OPTIONS = allSpendingCategories(settings)
 
   const [values, setValues] = useState(() =>
     bill
@@ -102,7 +105,7 @@ export default function BillForm({ bill, onClose, onSaved }) {
               className={inputCls}
             >
               <option value="">None</option>
-              {CATEGORY_OPTIONS.map((c) => (
+              {[...new Set([values.category, ...CATEGORY_OPTIONS].filter(Boolean))].map((c) => (
                 <option key={c} value={c}>
                   {c}
                 </option>
