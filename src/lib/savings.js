@@ -27,6 +27,18 @@ export async function deleteGoal(id) {
   if (error) throw error
 }
 
+// Add a contribution to a goal — increases its saved amount.
+export async function addToSavings(goal, amount) {
+  const add = Number(amount) || 0
+  if (add === 0) return
+  const next = (Number(goal.saved_amount) || 0) + add
+  const { error } = await supabase
+    .from('savings_goals')
+    .update({ saved_amount: next })
+    .eq('id', goal.id)
+  if (error) throw error
+}
+
 // Whole months from `from` until the goal's target month.
 export function monthsUntil(targetDate, from = new Date()) {
   if (!targetDate) return 0

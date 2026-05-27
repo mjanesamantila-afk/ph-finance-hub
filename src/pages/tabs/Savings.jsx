@@ -13,6 +13,7 @@ import { MONTH_NAMES } from '../../lib/dates'
 import { DB_COLORS } from '../../config/constants'
 import GoalDonut from '../../components/savings/GoalDonut'
 import SavingsGoalForm from '../../components/savings/SavingsGoalForm'
+import AddSavingsForm from '../../components/savings/AddSavingsForm'
 import ConfirmDialog from '../../components/ConfirmDialog'
 
 function sourceColor(source) {
@@ -30,6 +31,7 @@ export default function Savings() {
 
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState(null)
+  const [addingTo, setAddingTo] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
 
   const totals = useMemo(() => {
@@ -141,13 +143,21 @@ export default function Savings() {
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-2 text-sm">
-                  <span className="text-emerald-700">Save per month</span>
-                  <span className="font-semibold text-emerald-700">
+                <div className="mt-4 flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm">
+                  <span className="text-slate-500">Save per month</span>
+                  <span className="font-semibold text-slate-900">
                     {formatMoney(monthlySaving(g))}
                     {months <= 0 ? ' (due now)' : ''}
                   </span>
                 </div>
+
+                <button
+                  onClick={() => setAddingTo(g)}
+                  className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+                >
+                  <Plus size={15} />
+                  Add to Savings
+                </button>
               </div>
             )
           })}
@@ -158,6 +168,14 @@ export default function Savings() {
         <SavingsGoalForm
           goal={editing}
           onClose={() => setFormOpen(false)}
+          onSaved={refetch}
+        />
+      )}
+
+      {addingTo && (
+        <AddSavingsForm
+          goal={addingTo}
+          onClose={() => setAddingTo(null)}
           onSaved={refetch}
         />
       )}
