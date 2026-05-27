@@ -15,6 +15,7 @@ import { formatMoney } from '../../lib/finance'
 import { MONTH_NAMES, nextDueDate, daysUntil, monthKeyFromDate } from '../../lib/dates'
 import BillForm from '../../components/bills/BillForm'
 import BillCalendar from '../../components/bills/BillCalendar'
+import ConfirmDialog from '../../components/ConfirmDialog'
 
 const DUE_SOON_DAYS = 7
 
@@ -26,6 +27,7 @@ export default function Bills() {
   const [monthIndex, setMonthIndex] = useState(now.getMonth())
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState(null)
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   const activeBills = useMemo(() => bills.filter((b) => b.active !== false), [bills])
 
@@ -76,9 +78,10 @@ export default function Bills() {
     setEditing(bill)
     setFormOpen(true)
   }
-  async function handleDelete(bill) {
-    if (!window.confirm(`Delete "${bill.name}"?`)) return
-    await deleteBill(bill.id)
+  async function confirmDeleteBill() {
+    if (!confirmDelete) return
+    await deleteBill(confirmDelete.id)
+    setConfirmDelete(null)
     await refetch()
   }
 
@@ -231,7 +234,7 @@ export default function Bills() {
                     <Pencil size={15} />
                   </button>
                   <button
-                    onClick={() => handleDelete(b)}
+                    onClick={() => setConfirmDelete(b)}
                     className="text-slate-300 hover:text-red-500"
                     title="Delete"
                   >
@@ -247,6 +250,14 @@ export default function Bills() {
       {formOpen && (
         <BillForm bill={editing} onClose={() => setFormOpen(false)} onSaved={refetch} />
       )}
+
+      <ConfirmDialog
+        open={Boolean(confirmDelete)}
+        title="Delete bill?"
+        message={confirmDelete ? `"${confirmDelete.name}" will be removed.` : ''}
+        onConfirm={confirmDeleteBill}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   )
 }

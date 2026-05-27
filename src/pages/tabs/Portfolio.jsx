@@ -5,6 +5,7 @@ import { deleteHolding, refreshHoldingPrice } from '../../lib/holdings'
 import HoldingForm from '../../components/portfolio/HoldingForm'
 import HoldingCard from '../../components/portfolio/HoldingCard'
 import BuyMoreForm from '../../components/portfolio/BuyMoreForm'
+import ConfirmDialog from '../../components/ConfirmDialog'
 
 export default function Portfolio() {
   const { holdings, loading, globalStopLoss, refetch } = useData()
@@ -13,6 +14,7 @@ export default function Portfolio() {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [buyingHolding, setBuyingHolding] = useState(null)
+  const [confirmDelete, setConfirmDelete] = useState(null)
   const [refreshingId, setRefreshingId] = useState(null)
   const [refreshingAll, setRefreshingAll] = useState(false)
   const [notice, setNotice] = useState('')
@@ -39,9 +41,10 @@ export default function Portfolio() {
     setFormOpen(true)
   }
 
-  async function handleDelete(holding) {
-    if (!window.confirm(`Delete "${holding.name}"? This can't be undone.`)) return
-    await deleteHolding(holding.id)
+  async function confirmDeleteHolding() {
+    if (!confirmDelete) return
+    await deleteHolding(confirmDelete.id)
+    setConfirmDelete(null)
     await refetch()
   }
 
@@ -157,7 +160,7 @@ export default function Portfolio() {
               refreshing={refreshingId === h.id}
               onRefresh={handleRefreshOne}
               onEdit={openEdit}
-              onDelete={handleDelete}
+              onDelete={setConfirmDelete}
               onBuyMore={setBuyingHolding}
             />
           ))}
@@ -180,6 +183,14 @@ export default function Portfolio() {
           onSaved={refetch}
         />
       )}
+
+      <ConfirmDialog
+        open={Boolean(confirmDelete)}
+        title="Delete investment?"
+        message={confirmDelete ? `"${confirmDelete.name}" will be removed. This can't be undone.` : ''}
+        onConfirm={confirmDeleteHolding}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   )
 }
