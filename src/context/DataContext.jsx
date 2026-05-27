@@ -137,7 +137,9 @@ export function DataProvider({ children }) {
       bills.filter((b) => {
         if (b.active === false) return false
         const due = nextDueDate(b.due_day)
-        if ((b.paid_months || []).includes(monthKeyFromDate(due))) return false
+        const mk = monthKeyFromDate(due)
+        if (b.ended_from && mk >= b.ended_from) return false // ended
+        if ((b.paid_months || []).includes(mk)) return false // already paid
         const d = daysUntil(due)
         return d >= 0 && d <= DUE_SOON_DAYS
       }).length,

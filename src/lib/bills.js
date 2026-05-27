@@ -42,3 +42,29 @@ export async function setBillPaid(bill, monthKey, paid) {
 export function isBillPaid(bill, monthKey) {
   return (bill?.paid_months || []).includes(monthKey)
 }
+
+// Amount for a specific month: a per-month override if set, else the default.
+export function effectiveAmount(bill, monthKey) {
+  const override = bill?.month_amounts?.[monthKey]
+  return override === undefined || override === null ? Number(bill?.amount) || 0 : Number(override)
+}
+
+// Set (override) the amount for one month only.
+export async function setBillMonthAmount(bill, monthKey, amount) {
+  const next = { ...(bill.month_amounts || {}), [monthKey]: Number(amount) || 0 }
+  const { error } = await supabase.from('bills').update({ month_amounts: next }).eq('id', bill.id)
+  if (error) throw error
+}
+
+// A bill applies to a month if it's active and hasn't been ended before it.
+export function isBillActiveForMonth(bill, monthKey) {
+  if (!bill || bill.active === false) return false
+  if (bill.ended_from && monthKey >= bill.ended_from) return false
+  return true
+}
+
+// Stop a bill from a given month onward (keeps earlier months as history).
+export async function endBillFrom(bill, monthKey) {
+  const { error } = await supabase.from('bills').update({ ended_from: monthKey }).eq('id', bill.id)
+  if (error) throw error
+}

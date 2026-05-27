@@ -111,6 +111,8 @@ create table bills (
   notes text,
   active boolean default true,
   paid_months text[] default '{}',
+  month_amounts jsonb default '{}',
+  ended_from text,
   created_at timestamptz default now()
 );
 

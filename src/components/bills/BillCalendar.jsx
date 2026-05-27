@@ -1,6 +1,7 @@
 import { Check } from 'lucide-react'
 import { calendarWeeks, clampDay, monthKeyFromDate, WEEKDAY_LABELS } from '../../lib/dates'
 import { formatMoney } from '../../lib/finance'
+import { effectiveAmount } from '../../lib/bills'
 
 // Month calendar with bills shown on their due day.
 // Tapping a bill toggles its paid status for THIS month only.
@@ -63,7 +64,7 @@ export default function BillCalendar({ year, monthIndex, bills, onTogglePaid }) 
                               ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
                               : 'bg-rose-100 text-rose-700 hover:bg-rose-200'
                           }`}
-                          title={`${b.name}${b.amount ? ` — ${formatMoney(b.amount)}` : ''} — tap to mark ${
+                          title={`${b.name} — ${formatMoney(effectiveAmount(b, monthKey))} — tap to mark ${
                             paid ? 'unpaid' : 'paid'
                           } for this month`}
                         >
