@@ -134,3 +134,18 @@ create table savings_goals (
 
 alter table savings_goals enable row level security;
 create policy "Users own their savings goals" on savings_goals for all using (auth.uid() = user_id);
+
+-- Subscriptions (recurring services: Netflix, Spotify, etc.)
+create table subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users on delete cascade not null,
+  name text not null,
+  amount numeric default 0,
+  cycle text default 'monthly',
+  payment_method text,
+  active boolean default true,
+  created_at timestamptz default now()
+);
+
+alter table subscriptions enable row level security;
+create policy "Users own their subscriptions" on subscriptions for all using (auth.uid() = user_id);

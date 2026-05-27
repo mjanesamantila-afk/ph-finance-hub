@@ -10,6 +10,7 @@ import RiskManagement from './pages/tabs/RiskManagement'
 import Budget from './pages/tabs/Budget'
 import Bills from './pages/tabs/Bills'
 import Savings from './pages/tabs/Savings'
+import Subscriptions from './pages/tabs/Subscriptions'
 import FreedomPlan from './pages/tabs/FreedomPlan'
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
             <Route path="budget" element={<Budget />} />
             <Route path="bills" element={<Bills />} />
             <Route path="savings" element={<Savings />} />
+            <Route path="subscriptions" element={<Subscriptions />} />
             <Route path="freedom" element={<FreedomPlan />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
