@@ -56,9 +56,12 @@ export async function setBillMonthAmount(bill, monthKey, amount) {
   if (error) throw error
 }
 
-// A bill applies to a month if it's active and hasn't been ended before it.
+// A bill applies to a month if it's active, the month is on/after the month it
+// was created (so past months aren't back-filled), and it hasn't been ended.
 export function isBillActiveForMonth(bill, monthKey) {
   if (!bill || bill.active === false) return false
+  const startMonth = (bill.created_at || '').slice(0, 7) // 'YYYY-MM' of creation
+  if (startMonth && monthKey < startMonth) return false
   if (bill.ended_from && monthKey >= bill.ended_from) return false
   return true
 }
