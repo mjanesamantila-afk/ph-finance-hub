@@ -25,11 +25,15 @@ export default function Ledger() {
   })
 
   const custom = settings?.custom_categories ?? { manual: [], digital: [] }
+  const hidden = custom.hidden ?? { manual: [], digital: [] }
+  // De-duplicated category list, excluding any removed in the Spending tab.
   const allCategories = [
-    ...SPENDING_CATS.manual,
-    ...SPENDING_CATS.digital,
-    ...(custom.manual ?? []),
-    ...(custom.digital ?? []),
+    ...new Set([
+      ...SPENDING_CATS.manual.filter((c) => !(hidden.manual ?? []).includes(c)),
+      ...SPENDING_CATS.digital.filter((c) => !(hidden.digital ?? []).includes(c)),
+      ...(custom.manual ?? []),
+      ...(custom.digital ?? []),
+    ]),
   ]
 
   const visible = useMemo(() => {
