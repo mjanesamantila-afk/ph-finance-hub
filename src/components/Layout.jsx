@@ -12,9 +12,9 @@ import { useData } from '../context/DataContext'
 
 const TABS = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/budget', label: 'Budget', icon: Wallet },
   { to: '/portfolio', label: 'Portfolio', icon: Briefcase },
   { to: '/risk', label: 'Risk Management', icon: ShieldAlert, badge: true },
-  { to: '/budget', label: 'Budget', icon: Wallet },
   { to: '/freedom', label: 'Freedom Plan', icon: Target },
 ]
 
