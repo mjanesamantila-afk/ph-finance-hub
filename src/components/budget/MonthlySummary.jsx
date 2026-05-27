@@ -10,14 +10,21 @@ export default function MonthlySummary() {
   const { ledgerEntries, bankTransactions, holdings, digitalBanks, settings } = useData()
   const [month, setMonth] = useState(currentMonthKey())
 
-  const { planVsActual, breakdown } = useMemo(() => {
-    const income = Number(settings?.income) || 0
+  const { planVsActual, breakdown, planIncome, usingFallbackIncome } = useMemo(() => {
     const system = settings?.money_system ?? {
       tithes: 10,
       invest: 20,
       savings: 20,
       spend: 50,
     }
+    // Income for the month = actual "Money In" from the Ledger; falls back to
+    // the typical income from settings when nothing's been logged yet.
+    const monthIn = ledgerEntries
+      .filter((e) => e.direction === 'in' && monthKeyOf(e.date) === month)
+      .reduce((s, e) => s + (Number(e.amount) || 0), 0)
+    const fallback = monthIn <= 0
+    const income = fallback ? Number(settings?.income) || 0 : monthIn
+
     const monthOut = ledgerEntries.filter(
       (e) => e.direction === 'out' && monthKeyOf(e.date) === month
     )
@@ -53,7 +60,12 @@ export default function MonthlySummary() {
       .map(([label, value], i) => ({ label, value, color: PALETTE[i % PALETTE.length] }))
       .sort((a, b) => b.value - a.value)
 
-    return { planVsActual: rows, breakdown: sortedBreakdown }
+    return {
+      planVsActual: rows,
+      breakdown: sortedBreakdown,
+      planIncome: income,
+      usingFallbackIncome: fallback,
+    }
   }, [ledgerEntries, bankTransactions, holdings, month, settings])
 
   const breakdownTotal = breakdown.reduce((s, d) => s + d.value, 0)
@@ -66,10 +78,16 @@ export default function MonthlySummary() {
       {/* Plan vs Actual */}
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
         <div className="border-b border-slate-100 px-5 py-3">
-          <h2 className="font-medium text-slate-900">Plan vs Actual</h2>
-          <p className="text-xs text-slate-400">
-            Plan = income × allocation. Actual: Tithes/Spend from ledger, Savings from net
-            bank inflow, Invest from holdings added this month.
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="font-medium text-slate-900">Plan vs Actual</h2>
+            <span className="text-sm text-slate-500">
+              Income: <span className="font-semibold text-slate-700">{formatMoney(planIncome)}</span>
+              {usingFallbackIncome ? ' (typical)' : ' (from Ledger)'}
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-slate-400">
+            Plan = this month’s income × allocation. Actual: Generosity/Spend from ledger,
+            Savings from net bank inflow, Invest from holdings added this month.
           </p>
         </div>
         <table className="w-full text-sm">
