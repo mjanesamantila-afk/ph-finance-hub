@@ -113,6 +113,7 @@ create table bills (
   paid_months text[] default '{}',
   month_amounts jsonb default '{}',
   ended_from text,
+  starts_from text,
   created_at timestamptz default now()
 );
 

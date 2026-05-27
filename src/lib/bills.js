@@ -11,10 +11,10 @@ function toRow(values) {
   }
 }
 
-export async function createBill(userId, values) {
-  const { error } = await supabase
-    .from('bills')
-    .insert({ ...toRow(values), user_id: userId })
+export async function createBill(userId, values, startMonth) {
+  const row = { ...toRow(values), user_id: userId }
+  if (startMonth) row.starts_from = startMonth
+  const { error } = await supabase.from('bills').insert(row)
   if (error) throw error
 }
 
@@ -56,11 +56,12 @@ export async function setBillMonthAmount(bill, monthKey, amount) {
   if (error) throw error
 }
 
-// A bill applies to a month if it's active, the month is on/after the month it
-// was created (so past months aren't back-filled), and it hasn't been ended.
+// A bill applies to a month if it's active, the month is on/after its start
+// month (the month it was added for — past months aren't back-filled), and it
+// hasn't been ended. Falls back to the creation month for older bills.
 export function isBillActiveForMonth(bill, monthKey) {
   if (!bill || bill.active === false) return false
-  const startMonth = (bill.created_at || '').slice(0, 7) // 'YYYY-MM' of creation
+  const startMonth = bill.starts_from || (bill.created_at || '').slice(0, 7)
   if (startMonth && monthKey < startMonth) return false
   if (bill.ended_from && monthKey >= bill.ended_from) return false
   return true

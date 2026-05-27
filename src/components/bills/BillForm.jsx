@@ -7,7 +7,7 @@ import { useData } from '../../context/DataContext'
 
 const EMPTY = { name: '', amount: '', due_day: '1', category: '', notes: '', active: true }
 
-export default function BillForm({ bill, onClose, onSaved }) {
+export default function BillForm({ bill, startMonth, startLabel, onClose, onSaved }) {
   const { user } = useAuth()
   const { settings } = useData()
   const isEdit = Boolean(bill)
@@ -40,7 +40,7 @@ export default function BillForm({ bill, onClose, onSaved }) {
     setBusy(true)
     try {
       if (isEdit) await updateBill(bill.id, values)
-      else await createBill(user.id, values)
+      else await createBill(user.id, values, startMonth)
       await onSaved()
       onClose()
     } catch (err) {
@@ -131,6 +131,13 @@ export default function BillForm({ bill, onClose, onSaved }) {
             />
             Active (show in calendar &amp; reminders)
           </label>
+
+          {!isEdit && startLabel && (
+            <p className="rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+              Starts in <span className="font-semibold">{startLabel}</span> and repeats every
+              month. (It won’t appear in earlier months.)
+            </p>
+          )}
 
           {error && (
             <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>

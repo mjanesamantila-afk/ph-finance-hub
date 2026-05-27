@@ -289,7 +289,13 @@ export default function Bills() {
       </div>
 
       {formOpen && (
-        <BillForm bill={editing} onClose={() => setFormOpen(false)} onSaved={refetch} />
+        <BillForm
+          bill={editing}
+          startMonth={displayedMonthKey}
+          startLabel={monthLabelText}
+          onClose={() => setFormOpen(false)}
+          onSaved={refetch}
+        />
       )}
 
       {/* Delete options dialog */}
