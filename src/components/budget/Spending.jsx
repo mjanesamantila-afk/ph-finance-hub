@@ -17,7 +17,9 @@ export default function Spending() {
   const [newCat, setNewCat] = useState('')
 
   const custom = settings?.custom_categories ?? { manual: [], digital: [] }
-  const baseCats = SPENDING_CATS[tab] ?? []
+  const hidden = custom.hidden ?? { manual: [], digital: [] }
+  const hiddenForTab = hidden[tab] ?? []
+  const baseCats = (SPENDING_CATS[tab] ?? []).filter((c) => !hiddenForTab.includes(c))
   const customCats = custom[tab] ?? []
   const categories = [...baseCats, ...customCats]
 
@@ -52,15 +54,30 @@ export default function Spending() {
 
   async function addCustomCategory() {
     const name = newCat.trim()
-    if (!name || categories.includes(name)) return
+    if (!name) return
+    // Re-adding a previously removed built-in just un-hides it.
+    if (hiddenForTab.includes(name)) {
+      const nextHidden = { ...hidden, [tab]: hiddenForTab.filter((c) => c !== name) }
+      await updateSettings({ custom_categories: { ...custom, hidden: nextHidden } })
+      setNewCat('')
+      return
+    }
+    if (categories.includes(name)) return
     const next = { ...custom, [tab]: [...customCats, name] }
     await updateSettings({ custom_categories: next })
     setNewCat('')
   }
 
-  async function removeCustomCategory(name) {
-    const next = { ...custom, [tab]: customCats.filter((c) => c !== name) }
-    await updateSettings({ custom_categories: next })
+  // Delete any category: custom ones are removed; built-in ones are hidden
+  // (so they can be restored later by re-adding the same name).
+  async function removeCategory(name) {
+    if (customCats.includes(name)) {
+      const next = { ...custom, [tab]: customCats.filter((c) => c !== name) }
+      await updateSettings({ custom_categories: next })
+    } else {
+      const nextHidden = { ...hidden, [tab]: [...hiddenForTab, name] }
+      await updateSettings({ custom_categories: { ...custom, hidden: nextHidden } })
+    }
   }
 
   return (
@@ -83,20 +100,17 @@ export default function Spending() {
           const spent = spentFor(cat)
           const pct = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0
           const over = budget > 0 && spent > budget
-          const isCustom = customCats.includes(cat)
           return (
             <div key={cat} className="rounded-xl border border-slate-200 bg-white p-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-medium text-slate-900">{cat}</h3>
-                {isCustom && (
-                  <button
-                    onClick={() => removeCustomCategory(cat)}
-                    className="text-slate-300 hover:text-red-500"
-                    title="Remove custom category"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                )}
+                <button
+                  onClick={() => removeCategory(cat)}
+                  className="text-slate-300 hover:text-red-500"
+                  title="Remove category"
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
 
               <label className="mt-2 block">
