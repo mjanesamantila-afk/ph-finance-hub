@@ -49,6 +49,7 @@ export function DataProvider({ children }) {
   const [bankTransactions, setBankTransactions] = useState([])
   const [interestHistory, setInterestHistory] = useState([])
   const [bills, setBills] = useState([])
+  const [savingsGoals, setSavingsGoals] = useState([])
   const [loading, setLoading] = useState(true)
 
   const refetch = useCallback(async () => {
@@ -65,6 +66,7 @@ export function DataProvider({ children }) {
       txnsRes,
       interestRes,
       billsRes,
+      savingsRes,
     ] = await Promise.all([
       supabase.from('holdings').select('*').eq('user_id', user.id),
       supabase.from('user_settings').select('*').eq('user_id', user.id).maybeSingle(),
@@ -82,6 +84,7 @@ export function DataProvider({ children }) {
         .order('date', { ascending: false }),
       supabase.from('interest_history').select('*').eq('user_id', user.id),
       supabase.from('bills').select('*').eq('user_id', user.id).order('due_day'),
+      supabase.from('savings_goals').select('*').eq('user_id', user.id).order('created_at'),
     ])
     setHoldings(holdingsRes.data ?? [])
     setSettings(settingsRes.data ?? null)
@@ -91,6 +94,7 @@ export function DataProvider({ children }) {
     setBankTransactions(txnsRes.data ?? [])
     setInterestHistory(interestRes.data ?? [])
     setBills(billsRes.data ?? [])
+    setSavingsGoals(savingsRes.data ?? [])
     setLoading(false)
   }, [user])
 
@@ -155,6 +159,7 @@ export function DataProvider({ children }) {
     bankTransactions,
     interestHistory,
     bills,
+    savingsGoals,
     loading,
     breachCount,
     billsDueSoon,

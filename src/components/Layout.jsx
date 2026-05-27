@@ -6,6 +6,7 @@ import {
   Wallet,
   Target,
   CalendarClock,
+  PiggyBank,
   LogOut,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -15,6 +16,7 @@ const TABS = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/budget', label: 'Budget', icon: Wallet },
   { to: '/bills', label: 'Bills Payment', icon: CalendarClock, badge: 'bills' },
+  { to: '/savings', label: 'Savings', icon: PiggyBank },
   { to: '/portfolio', label: 'Portfolio', icon: Briefcase },
   { to: '/risk', label: 'Risk Management', icon: ShieldAlert, badge: 'breach' },
   { to: '/freedom', label: 'Freedom Plan', icon: Target },

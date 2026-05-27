@@ -119,3 +119,18 @@ create table bills (
 
 alter table bills enable row level security;
 create policy "Users own their bills" on bills for all using (auth.uid() = user_id);
+
+-- Savings goals (e.g. Travel fund, Emergency fund)
+create table savings_goals (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users on delete cascade not null,
+  name text not null,
+  target_amount numeric default 0,
+  saved_amount numeric default 0,
+  target_date date,
+  source text,
+  created_at timestamptz default now()
+);
+
+alter table savings_goals enable row level security;
+create policy "Users own their savings goals" on savings_goals for all using (auth.uid() = user_id);
