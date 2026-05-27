@@ -168,8 +168,12 @@ export default function Bills() {
           year={year}
           monthIndex={monthIndex}
           bills={activeBills}
-          onSelectBill={openEdit}
+          onTogglePaid={handleSetPaid}
         />
+        <p className="mt-2 text-center text-xs text-slate-400">
+          Tap a bill to mark it paid/unpaid for {MONTH_NAMES[monthIndex]} only — other
+          months aren’t affected.
+        </p>
       </div>
 
       {/* Manage list */}
@@ -190,10 +194,7 @@ export default function Bills() {
           <div className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white">
             {[...bills]
               .sort((a, b) => a.due_day - b.due_day)
-              .map((b) => {
-                const dueMonthKey = monthKeyFromDate(nextDueDate(b.due_day))
-                const paid = (b.paid_months || []).includes(dueMonthKey)
-                return (
+              .map((b) => (
                 <div key={b.id} className="flex items-center gap-3 px-4 py-3">
                   <div className="flex h-9 w-9 shrink-0 flex-col items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                     <span className="text-[9px] uppercase leading-none text-slate-400">Day</span>
@@ -215,18 +216,6 @@ export default function Bills() {
                     </div>
                   </div>
                   <button
-                    onClick={() => handleSetPaid(b, dueMonthKey, !paid)}
-                    className={`flex items-center gap-1 rounded-lg border px-2 py-1 text-xs font-medium ${
-                      paid
-                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                        : 'border-slate-300 text-slate-600 hover:bg-slate-100'
-                    }`}
-                    title={paid ? 'Paid this month — tap to undo' : 'Mark paid this month'}
-                  >
-                    <Check size={13} />
-                    {paid ? 'Paid' : 'Mark paid'}
-                  </button>
-                  <button
                     onClick={() => openEdit(b)}
                     className="text-slate-400 hover:text-slate-700"
                     title="Edit"
@@ -241,8 +230,7 @@ export default function Bills() {
                     <Trash2 size={15} />
                   </button>
                 </div>
-                )
-              })}
+              ))}
           </div>
         )}
       </div>

@@ -3,7 +3,8 @@ import { calendarWeeks, clampDay, monthKeyFromDate, WEEKDAY_LABELS } from '../..
 import { formatMoney } from '../../lib/finance'
 
 // Month calendar with bills shown on their due day.
-export default function BillCalendar({ year, monthIndex, bills, onSelectBill }) {
+// Tapping a bill toggles its paid status for THIS month only.
+export default function BillCalendar({ year, monthIndex, bills, onTogglePaid }) {
   const weeks = calendarWeeks(year, monthIndex)
   const monthKey = monthKeyFromDate(new Date(year, monthIndex, 1))
 
@@ -56,15 +57,15 @@ export default function BillCalendar({ year, monthIndex, bills, onSelectBill }) 
                       return (
                         <button
                           key={b.id}
-                          onClick={() => onSelectBill(b)}
+                          onClick={() => onTogglePaid(b, monthKey, !paid)}
                           className={`flex w-full items-center gap-0.5 truncate rounded px-1 py-0.5 text-left text-[10px] font-medium ${
                             paid
                               ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
                               : 'bg-rose-100 text-rose-700 hover:bg-rose-200'
                           }`}
-                          title={`${b.name}${b.amount ? ` — ${formatMoney(b.amount)}` : ''}${
-                            paid ? ' (paid)' : ''
-                          }`}
+                          title={`${b.name}${b.amount ? ` — ${formatMoney(b.amount)}` : ''} — tap to mark ${
+                            paid ? 'unpaid' : 'paid'
+                          } for this month`}
                         >
                           {paid && <Check size={10} className="shrink-0" />}
                           <span className="truncate">{b.name}</span>
