@@ -98,7 +98,13 @@ export default function Dashboard() {
   }, [ledgerEntries, spendBudgets, bankTransactions, holdings, settings, month])
 
   const banksTotal = digitalBanks.reduce((s, b) => s + (Number(b.balance) || 0), 0)
-  const budgetBasis = budget.totalBudget > 0 ? budget.totalBudget : budget.income
+  // Top-level spending budget = your Money System "Spend" allocation
+  // (income × spend%). Falls back to category budgets, then income.
+  const spendBudget = budget.allocation.find((b) => b.key === 'spend')?.plan || 0
+  const budgetBasis =
+    spendBudget > 0 ? spendBudget : budget.totalBudget > 0 ? budget.totalBudget : budget.income
+  const budgetBasisLabel =
+    spendBudget > 0 ? 'of your Spend budget' : budget.totalBudget > 0 ? 'of category budgets' : 'of income'
   const remaining = budgetBasis - budget.spent
   const budgetPct = budgetBasis > 0 ? (budget.spent / budgetBasis) * 100 : 0
   const overBudget = budgetBasis > 0 && budget.spent > budgetBasis
@@ -166,7 +172,7 @@ export default function Dashboard() {
             icon={Wallet2}
             label="Remaining to Spend"
             value={formatMoney(remaining)}
-            sub={budget.totalBudget > 0 ? 'of your budget' : 'of income'}
+            sub={budgetBasisLabel}
             tone={remaining < 0 ? 'red' : 'slate'}
           />
           <StatCard icon={ArrowUpRight} label="Spent" value={formatMoney(budget.spent)} tone="red" />
