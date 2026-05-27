@@ -2,7 +2,10 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { DIGITAL_BANKS } from '../config/constants'
 import { countBreaches } from '../lib/finance'
+import { nextDueDate, daysUntil } from '../lib/dates'
 import { useAuth } from './AuthContext'
+
+const DUE_SOON_DAYS = 7
 
 const DataContext = createContext(null)
 
@@ -45,6 +48,7 @@ export function DataProvider({ children }) {
   const [spendBudgets, setSpendBudgets] = useState([])
   const [bankTransactions, setBankTransactions] = useState([])
   const [interestHistory, setInterestHistory] = useState([])
+  const [bills, setBills] = useState([])
   const [loading, setLoading] = useState(true)
 
   const refetch = useCallback(async () => {
@@ -60,6 +64,7 @@ export function DataProvider({ children }) {
       budgetsRes,
       txnsRes,
       interestRes,
+      billsRes,
     ] = await Promise.all([
       supabase.from('holdings').select('*').eq('user_id', user.id),
       supabase.from('user_settings').select('*').eq('user_id', user.id).maybeSingle(),
@@ -76,6 +81,7 @@ export function DataProvider({ children }) {
         .eq('user_id', user.id)
         .order('date', { ascending: false }),
       supabase.from('interest_history').select('*').eq('user_id', user.id),
+      supabase.from('bills').select('*').eq('user_id', user.id).order('due_day'),
     ])
     setHoldings(holdingsRes.data ?? [])
     setSettings(settingsRes.data ?? null)
@@ -84,6 +90,7 @@ export function DataProvider({ children }) {
     setSpendBudgets(budgetsRes.data ?? [])
     setBankTransactions(txnsRes.data ?? [])
     setInterestHistory(interestRes.data ?? [])
+    setBills(billsRes.data ?? [])
     setLoading(false)
   }, [user])
 
@@ -124,6 +131,17 @@ export function DataProvider({ children }) {
     [holdings, globalStopLoss]
   )
 
+  // Bills due within the next week (active only) — drives the nav reminder badge.
+  const billsDueSoon = useMemo(
+    () =>
+      bills.filter((b) => {
+        if (b.active === false) return false
+        const d = daysUntil(nextDueDate(b.due_day))
+        return d >= 0 && d <= DUE_SOON_DAYS
+      }).length,
+    [bills]
+  )
+
   const value = {
     holdings,
     settings,
@@ -132,8 +150,10 @@ export function DataProvider({ children }) {
     spendBudgets,
     bankTransactions,
     interestHistory,
+    bills,
     loading,
     breachCount,
+    billsDueSoon,
     globalStopLoss,
     refetch,
     updateSettings,

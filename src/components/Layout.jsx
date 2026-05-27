@@ -5,6 +5,7 @@ import {
   ShieldAlert,
   Wallet,
   Target,
+  CalendarClock,
   LogOut,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -13,14 +14,15 @@ import { useData } from '../context/DataContext'
 const TABS = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/budget', label: 'Budget', icon: Wallet },
+  { to: '/bills', label: 'Bills Payment', icon: CalendarClock, badge: 'bills' },
   { to: '/portfolio', label: 'Portfolio', icon: Briefcase },
-  { to: '/risk', label: 'Risk Management', icon: ShieldAlert, badge: true },
+  { to: '/risk', label: 'Risk Management', icon: ShieldAlert, badge: 'breach' },
   { to: '/freedom', label: 'Freedom Plan', icon: Target },
 ]
 
 export default function Layout() {
   const { user, signOut } = useAuth()
-  const { breachCount } = useData()
+  const { breachCount, billsDueSoon } = useData()
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -51,29 +53,32 @@ export default function Layout() {
           </div>
 
           <nav className="flex gap-1 overflow-x-auto">
-            {TABS.map(({ to, label, icon: Icon, end, badge }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                className={({ isActive }) =>
-                  [
-                    'relative flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition',
-                    isActive
-                      ? 'border-emerald-600 text-emerald-700'
-                      : 'border-transparent text-slate-500 hover:text-slate-800',
-                  ].join(' ')
-                }
-              >
-                <Icon size={16} />
-                {label}
-                {badge && breachCount > 0 && (
-                  <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-xs font-semibold text-white">
-                    {breachCount}
-                  </span>
-                )}
-              </NavLink>
-            ))}
+            {TABS.map(({ to, label, icon: Icon, end, badge }) => {
+              const count = badge === 'breach' ? breachCount : badge === 'bills' ? billsDueSoon : 0
+              return (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={end}
+                  className={({ isActive }) =>
+                    [
+                      'relative flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition',
+                      isActive
+                        ? 'border-emerald-600 text-emerald-700'
+                        : 'border-transparent text-slate-500 hover:text-slate-800',
+                    ].join(' ')
+                  }
+                >
+                  <Icon size={16} />
+                  {label}
+                  {count > 0 && (
+                    <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-xs font-semibold text-white">
+                      {count}
+                    </span>
+                  )}
+                </NavLink>
+              )
+            })}
           </nav>
         </div>
       </header>

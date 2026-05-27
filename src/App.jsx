@@ -8,6 +8,7 @@ import Dashboard from './pages/tabs/Dashboard'
 import Portfolio from './pages/tabs/Portfolio'
 import RiskManagement from './pages/tabs/RiskManagement'
 import Budget from './pages/tabs/Budget'
+import Bills from './pages/tabs/Bills'
 import FreedomPlan from './pages/tabs/FreedomPlan'
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
             <Route path="portfolio" element={<Portfolio />} />
             <Route path="risk" element={<RiskManagement />} />
             <Route path="budget" element={<Budget />} />
+            <Route path="bills" element={<Bills />} />
             <Route path="freedom" element={<FreedomPlan />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

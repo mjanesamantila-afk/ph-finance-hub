@@ -99,3 +99,19 @@ create policy "Users own their banks" on digital_banks for all using (auth.uid()
 create policy "Users own their bank txns" on bank_transactions for all using (auth.uid() = user_id);
 create policy "Users own their interest history" on interest_history for all using (auth.uid() = user_id);
 create policy "Users own their settings" on user_settings for all using (auth.uid() = user_id);
+
+-- Recurring monthly bills (due on a day each month)
+create table bills (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users on delete cascade not null,
+  name text not null,
+  amount numeric default 0,
+  due_day int not null,
+  category text,
+  notes text,
+  active boolean default true,
+  created_at timestamptz default now()
+);
+
+alter table bills enable row level security;
+create policy "Users own their bills" on bills for all using (auth.uid() = user_id);
