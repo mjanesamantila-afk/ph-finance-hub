@@ -3,7 +3,13 @@ import { Target, TrendingUp, Loader2, Check } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import { deriveHolding, formatMoney } from '../../lib/finance'
 
-const DEFAULT_PLAN = { currentAge: '', retireAge: '', monthlyGoal: '', expectedReturn: 8 }
+const DEFAULT_PLAN = {
+  currentAge: '',
+  retireAge: '',
+  monthlyGoal: '',
+  expectedReturn: 8,
+  monthlyContribution: '',
+}
 
 // FV = PV*(1+r)^n + PMT*((1+r)^n - 1)/r   (annual compounding)
 function projectedBalance(years, pv, pmtAnnual, r) {
@@ -48,7 +54,14 @@ export default function FreedomPlan() {
   const retireAge = Number(plan.retireAge) || 0
   const monthlyGoal = Number(plan.monthlyGoal) || 0
   const years = retireAge - currentAge
-  const pmtAnnual = monthlyInvest * 12
+  // Use the contribution the user typed; if blank, fall back to the Money
+  // System Invest amount.
+  const hasManualContribution =
+    plan.monthlyContribution !== '' && plan.monthlyContribution != null
+  const monthlyContribution = hasManualContribution
+    ? Number(plan.monthlyContribution) || 0
+    : monthlyInvest
+  const pmtAnnual = monthlyContribution * 12
 
   const neededCorpus = (monthlyGoal * 12) / 0.04
   const projected = years > 0 ? projectedBalance(years, pv, pmtAnnual, r) : pv
@@ -107,6 +120,12 @@ export default function FreedomPlan() {
             value={plan.expectedReturn}
             onChange={(v) => field('expectedReturn', v)}
           />
+          <Input
+            label="Monthly Contribution (₱)"
+            value={plan.monthlyContribution}
+            onChange={(v) => field('monthlyContribution', v)}
+            placeholder={`auto: ${Math.round(monthlyInvest)}`}
+          />
         </div>
         <button
           onClick={save}
@@ -117,8 +136,10 @@ export default function FreedomPlan() {
           {saved ? 'Saved' : 'Save Plan'}
         </button>
         <p className="mt-3 text-xs text-slate-400">
-          Projection starts from your current portfolio value ({formatMoney(pv)}) and adds your
-          Money System contribution ({formatMoney(monthlyInvest)}/mo).
+          Projection starts from your current portfolio value ({formatMoney(pv)}) and adds{' '}
+          {formatMoney(monthlyContribution)}/mo
+          {hasManualContribution ? '' : ' (from your Money System Invest %)'}. Leave Monthly
+          Contribution blank to use your Money System amount.
         </p>
       </div>
 
@@ -200,7 +221,7 @@ export default function FreedomPlan() {
   )
 }
 
-function Input({ label, value, onChange }) {
+function Input({ label, value, onChange, placeholder }) {
   return (
     <label className="block">
       <span className="mb-1 block text-xs font-medium text-slate-600">{label}</span>
@@ -208,6 +229,7 @@ function Input({ label, value, onChange }) {
         type="number"
         step="any"
         value={value}
+        placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
       />
