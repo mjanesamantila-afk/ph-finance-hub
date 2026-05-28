@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Plus, Pencil, Trash2, Receipt, Bell, Landmark } from 'lucide-react'
 import { useData } from '../../context/DataContext'
-import { deleteDebt, debtProgress, deleteDebtPayment } from '../../lib/debts'
+import { deleteDebt, deleteDebtPayment } from '../../lib/debts'
 import { formatMoney } from '../../lib/finance'
 import { nextDueDate, daysUntil, MONTH_NAMES } from '../../lib/dates'
 import DebtForm from '../../components/debt/DebtForm'
@@ -129,10 +129,18 @@ export default function Debt() {
       ) : (
         <div className="space-y-4">
           {debts.map((d) => {
-            const pct = debtProgress(d)
             const current = Number(d.current_balance) || 0
             const original = Number(d.original_amount) || 0
-            const paid = Math.max(original - current, 0)
+            // Paid = sum of recorded payments for this debt. For legacy debts
+            // without payment records, fall back to (original − current) when
+            // larger (so older payments still count toward Paid/progress).
+            const paymentsSum = debtPayments
+              .filter((p) => p.debt_id === d.id)
+              .reduce((s, p) => s + (Number(p.amount) || 0), 0)
+            const paid = Math.max(paymentsSum, Math.max(original - current, 0))
+            // Progress = how much of the loan you've cleared (paid out of the total you'll pay).
+            const total = paid + current
+            const pct = total > 0 ? Math.min((paid / total) * 100, 100) : 0
             return (
               <div key={d.id} className="rounded-xl border border-slate-200 bg-white p-5">
                 <div className="flex items-start justify-between gap-2">
@@ -199,7 +207,7 @@ export default function Debt() {
                   <Metric label="Monthly" value={formatMoney(d.monthly_payment)} />
                 </div>
 
-                {original > 0 && (
+                {total > 0 && (
                   <div className="mt-3">
                     <div className="flex justify-between text-xs text-slate-400">
                       <span>{pct.toFixed(0)}% paid</span>

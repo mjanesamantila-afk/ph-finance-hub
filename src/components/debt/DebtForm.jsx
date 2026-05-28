@@ -72,12 +72,12 @@ export default function DebtForm({ debt, onClose, onSaved }) {
   const showCalc = calc.totalPayable > 0 && Number(values.term_months) > 0
 
   function applyCalc() {
-    const total = String(Math.round(calc.totalPayable * 100) / 100)
+    // Original amount stays as the principal you borrowed.
+    // Current balance becomes the total payable (with interest), which then
+    // drops to zero as you record payments.
     setValues((prev) => ({
       ...prev,
-      // Set both so "Paid = Original − Current" stays consistent.
-      original_amount: total,
-      current_balance: total,
+      current_balance: String(Math.round(calc.totalPayable * 100) / 100),
       monthly_payment: String(Math.round(calc.monthlyPayment * 100) / 100),
     }))
   }
