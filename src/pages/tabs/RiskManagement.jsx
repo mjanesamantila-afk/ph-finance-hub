@@ -49,7 +49,7 @@ export default function RiskManagement() {
               Applied to holdings without their own stop-loss override.
             </p>
           </div>
-          <span className="text-2xl font-semibold text-emerald-600">{slPct}%</span>
+          <span className="text-2xl font-semibold text-blue-600">{slPct}%</span>
         </div>
         <input
           type="range"
@@ -61,7 +61,7 @@ export default function RiskManagement() {
           onMouseUp={commit}
           onTouchEnd={commit}
           onKeyUp={commit}
-          className="mt-4 w-full accent-emerald-600"
+          className="mt-4 w-full accent-blue-600"
         />
         <div className="mt-1 flex justify-between text-xs text-slate-400">
           <span>1%</span>
@@ -161,7 +161,7 @@ function DistanceBadge({ distancePct }) {
     ? 'bg-red-100 text-red-700'
     : close
       ? 'bg-amber-100 text-amber-700'
-      : 'bg-emerald-100 text-emerald-700'
+      : 'bg-blue-100 text-blue-700'
   const label = breached ? 'Breached' : `${distancePct.toFixed(1)}% away`
   return (
     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}>{label}</span>
@@ -171,7 +171,7 @@ function DistanceBadge({ distancePct }) {
 const TONES = {
   slate: 'text-slate-900',
   red: 'text-red-600',
-  emerald: 'text-emerald-600',
+  emerald: 'text-blue-600',
 }
 
 function SummaryCard({ icon: Icon, label, value, tone }) {

@@ -137,7 +137,7 @@ export default function Bills() {
         <h1 className="text-2xl font-semibold text-slate-900">Bills Payment</h1>
         <button
           onClick={openAdd}
-          className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
         >
           <Plus size={15} />
           Add Bill
@@ -168,7 +168,7 @@ export default function Bills() {
                   </span>
                   <button
                     onClick={() => handleSetPaid(bill, monthKey, true)}
-                    className="flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-emerald-700"
+                    className="flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-blue-700"
                   >
                     <Check size={13} />
                     Mark as Paid
@@ -272,7 +272,7 @@ export default function Bills() {
                         step="any"
                         defaultValue={effectiveAmount(b, displayedMonthKey) || ''}
                         onBlur={(e) => handleSetAmount(b, e.target.value)}
-                        className="w-40 rounded-lg border border-slate-300 px-2 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                        className="w-40 rounded-lg border border-slate-300 px-2 py-1.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                         placeholder="0"
                       />
                     </label>
@@ -280,7 +280,7 @@ export default function Bills() {
                       onClick={() => handleSetPaid(b, displayedMonthKey, !paid)}
                       className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium ${
                         paid
-                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                          ? 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100'
                           : 'border-slate-300 text-slate-600 hover:bg-slate-100'
                       }`}
                     >

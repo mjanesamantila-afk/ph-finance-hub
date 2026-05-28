@@ -128,7 +128,7 @@ export default function DigitalBankCard({ bank, transactions, interestRows, onCh
             <button
               onClick={saveRename}
               disabled={busy}
-              className="text-emerald-600 hover:text-emerald-700"
+              className="text-blue-600 hover:text-blue-700"
               title="Save"
             >
               <Check size={16} />
@@ -179,7 +179,7 @@ export default function DigitalBankCard({ bank, transactions, interestRows, onCh
             type="number"
             defaultValue={balance}
             onBlur={(e) => saveField({ balance: Number(e.target.value) || 0 })}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
         </label>
         <label className="block">
@@ -189,20 +189,20 @@ export default function DigitalBankCard({ bank, transactions, interestRows, onCh
             step="any"
             defaultValue={rate}
             onBlur={(e) => saveField({ interest_rate: Number(e.target.value) || 0 })}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
         </label>
       </div>
 
       <div className="mt-3 flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm">
         <span className="text-slate-500">Est. monthly interest</span>
-        <span className="font-medium text-emerald-600">{formatMoney(monthlyInterest)}</span>
+        <span className="font-medium text-blue-600">{formatMoney(monthlyInterest)}</span>
       </div>
 
       <button
         onClick={handleRecordInterest}
         disabled={busy || alreadyRecorded}
-        className="mt-3 w-full rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
+        className="mt-3 w-full rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
       >
         {alreadyRecorded
           ? `Interest recorded for ${monthLabel(thisMonth)}`
@@ -266,7 +266,7 @@ export default function DigitalBankCard({ bank, transactions, interestRows, onCh
               <div key={t.id} className="flex justify-between text-xs">
                 <span className="truncate text-slate-500">{t.note || t.date}</span>
                 <span
-                  className={t.direction === 'in' ? 'text-emerald-600' : 'text-red-600'}
+                  className={t.direction === 'in' ? 'text-blue-600' : 'text-red-600'}
                 >
                   {t.direction === 'in' ? '+' : '−'}
                   {formatMoney(t.amount)}
@@ -287,7 +287,7 @@ export default function DigitalBankCard({ bank, transactions, interestRows, onCh
             {interestRows.map((r) => (
               <div key={r.id} className="flex justify-between text-xs text-slate-500">
                 <span>{monthLabel(r.month)}</span>
-                <span className="text-emerald-600">{formatMoney(r.interest)}</span>
+                <span className="text-blue-600">{formatMoney(r.interest)}</span>
               </div>
             ))}
           </div>

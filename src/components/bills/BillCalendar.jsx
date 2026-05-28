@@ -42,12 +42,12 @@ export default function BillCalendar({ year, monthIndex, bills, onTogglePaid }) 
                 <div
                   key={di}
                   className={`min-h-16 rounded-lg border p-1 text-left ${
-                    isToday ? 'border-emerald-400 bg-emerald-50' : 'border-slate-100'
+                    isToday ? 'border-blue-400 bg-blue-50' : 'border-slate-100'
                   }`}
                 >
                   <div
                     className={`text-xs font-medium ${
-                      isToday ? 'text-emerald-700' : 'text-slate-400'
+                      isToday ? 'text-blue-700' : 'text-slate-400'
                     }`}
                   >
                     {day}
@@ -61,7 +61,7 @@ export default function BillCalendar({ year, monthIndex, bills, onTogglePaid }) 
                           onClick={() => onTogglePaid(b, monthKey, !paid)}
                           className={`flex w-full items-center gap-0.5 truncate rounded px-1 py-0.5 text-left text-[10px] font-medium ${
                             paid
-                              ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                              ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                               : 'bg-rose-100 text-rose-700 hover:bg-rose-200'
                           }`}
                           title={`${b.name} — ${formatMoney(effectiveAmount(b, monthKey))} — tap to mark ${

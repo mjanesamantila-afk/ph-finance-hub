@@ -85,14 +85,14 @@ export default function Account() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="What should we call you?"
-                className="w-full max-w-sm rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                className="w-full max-w-sm rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               />
             </label>
             <div className="flex items-center gap-3">
               <button
                 type="submit"
                 disabled={savingName}
-                className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+                className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
               >
                 {savingName ? (
                   <Loader2 size={15} className="animate-spin" />
@@ -119,7 +119,7 @@ export default function Account() {
                 type={showPw ? 'text' : 'password'}
                 value={pw1}
                 onChange={(e) => setPw1(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 pr-10 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 pr-10 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                 autoComplete="new-password"
               />
               <button
@@ -138,7 +138,7 @@ export default function Account() {
               type={showPw ? 'text' : 'password'}
               value={pw2}
               onChange={(e) => setPw2(e.target.value)}
-              className="w-full max-w-sm rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+              className="w-full max-w-sm rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               autoComplete="new-password"
             />
           </label>
@@ -146,7 +146,7 @@ export default function Account() {
             <button
               type="submit"
               disabled={savingPw}
-              className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
             >
               {savingPw ? (
                 <Loader2 size={15} className="animate-spin" />

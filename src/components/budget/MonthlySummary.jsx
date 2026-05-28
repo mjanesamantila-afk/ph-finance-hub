@@ -109,7 +109,7 @@ export default function MonthlySummary() {
                   <td className="px-5 py-2.5 text-slate-700">{formatMoney(r.actual)}</td>
                   <td
                     className={`px-5 py-2.5 font-medium ${
-                      diff >= 0 ? 'text-emerald-600' : 'text-red-600'
+                      diff >= 0 ? 'text-blue-600' : 'text-red-600'
                     }`}
                   >
                     {diff >= 0 ? '+' : ''}

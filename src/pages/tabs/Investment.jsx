@@ -30,7 +30,7 @@ export default function Investment() {
               onClick={() => setActive(t.key)}
               className={`relative flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium transition ${
                 active === t.key
-                  ? 'border-emerald-600 text-emerald-700'
+                  ? 'border-blue-600 text-blue-700'
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >

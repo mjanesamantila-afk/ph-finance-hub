@@ -91,7 +91,7 @@ export default function AddBankForm({ onClose, onSaved }) {
             <button
               type="submit"
               disabled={busy}
-              className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
             >
               {busy && <Loader2 size={16} className="animate-spin" />}
               Add Bank
@@ -104,7 +104,7 @@ export default function AddBankForm({ onClose, onSaved }) {
 }
 
 const inputCls =
-  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200'
+  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
 
 function Field({ label, children }) {
   return (

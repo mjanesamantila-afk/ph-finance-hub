@@ -29,7 +29,7 @@ export default function Layout() {
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex h-14 items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <Wallet size={18} />
               </div>
               <span className="hidden font-semibold text-slate-900 sm:block">
@@ -42,7 +42,7 @@ export default function Layout() {
                 to="/account"
                 className={({ isActive }) =>
                   `hidden rounded-lg px-2 py-1 text-sm text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 md:block ${
-                    isActive ? 'text-emerald-700' : ''
+                    isActive ? 'text-blue-700' : ''
                   }`
                 }
                 title="Account settings"
@@ -76,7 +76,7 @@ export default function Layout() {
                     [
                       'relative flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition',
                       isActive
-                        ? 'border-emerald-600 text-emerald-700'
+                        ? 'border-blue-600 text-blue-700'
                         : 'border-transparent text-slate-500 hover:text-slate-800',
                     ].join(' ')
                   }

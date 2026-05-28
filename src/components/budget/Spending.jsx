@@ -139,7 +139,7 @@ export default function Spending() {
             </div>
             <div className="mt-1 flex items-center justify-between text-xs">
               <span
-                className={overSpendBudget ? 'font-medium text-red-600' : 'text-emerald-600'}
+                className={overSpendBudget ? 'font-medium text-red-600' : 'text-blue-600'}
               >
                 {overSpendBudget
                   ? `Over by ${formatMoney(Math.abs(remainingToAllocate))}`
@@ -160,7 +160,7 @@ export default function Spending() {
         </div>
         <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-slate-100">
           <div
-            className={`h-full rounded-full ${overAllocated ? 'bg-red-500' : 'bg-emerald-500'}`}
+            className={`h-full rounded-full ${overAllocated ? 'bg-red-500' : 'bg-blue-500'}`}
             style={{
               width: `${totalAllocated > 0 ? Math.min((totalSpent / totalAllocated) * 100, 100) : 0}%`,
             }}
@@ -194,7 +194,7 @@ export default function Spending() {
                   defaultValue={budget || ''}
                   onBlur={(e) => saveBudget(cat, e.target.value)}
                   placeholder="0"
-                  className="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                 />
               </label>
 
@@ -206,7 +206,7 @@ export default function Spending() {
               </div>
               <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-slate-100">
                 <div
-                  className={`h-full rounded-full ${over ? 'bg-red-500' : 'bg-emerald-500'}`}
+                  className={`h-full rounded-full ${over ? 'bg-red-500' : 'bg-blue-500'}`}
                   style={{ width: `${pct}%` }}
                 />
               </div>
@@ -234,7 +234,7 @@ export default function Spending() {
           onChange={(e) => setNewCat(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && addCustomCategory()}
           placeholder={`Add custom ${tab} category`}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+          className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
         />
         <button
           onClick={addCustomCategory}

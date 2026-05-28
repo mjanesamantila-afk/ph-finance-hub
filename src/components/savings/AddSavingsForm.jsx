@@ -75,7 +75,7 @@ export default function AddSavingsForm({ goal, onClose, onSaved }) {
               autoFocus
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               placeholder="e.g. 7272"
             />
           </label>
@@ -94,7 +94,7 @@ export default function AddSavingsForm({ goal, onClose, onSaved }) {
             </p>
           )}
           {reached && (
-            <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+            <p className="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-700">
               🎉 This reaches your goal!
             </p>
           )}
@@ -113,7 +113,7 @@ export default function AddSavingsForm({ goal, onClose, onSaved }) {
             <button
               type="submit"
               disabled={busy}
-              className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
             >
               {busy && <Loader2 size={16} className="animate-spin" />}
               Add to Savings

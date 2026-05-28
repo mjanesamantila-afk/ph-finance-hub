@@ -47,7 +47,7 @@ export default function InvestmentPlan() {
         <h2 className="text-xl font-semibold text-slate-900">Monthly Investment Plan</h2>
         <button
           onClick={openAdd}
-          className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
         >
           <Plus size={15} />
           Add Allocation
@@ -80,7 +80,7 @@ export default function InvestmentPlan() {
             </div>
             <div
               className={`mt-1 text-lg font-semibold ${
-                overTarget ? 'text-red-600' : onTrack ? 'text-emerald-600' : 'text-slate-900'
+                overTarget ? 'text-red-600' : onTrack ? 'text-blue-600' : 'text-slate-900'
               }`}
             >
               {formatMoney(Math.abs(difference))}
@@ -91,7 +91,7 @@ export default function InvestmentPlan() {
           <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-slate-100">
             <div
               className={`h-full rounded-full ${
-                overTarget ? 'bg-red-500' : onTrack ? 'bg-emerald-500' : 'bg-emerald-400'
+                overTarget ? 'bg-red-500' : onTrack ? 'bg-blue-500' : 'bg-blue-400'
               }`}
               style={{ width: `${Math.min((planTotal / target) * 100, 100)}%` }}
             />
@@ -130,7 +130,7 @@ export default function InvestmentPlan() {
                   {a.notes && <div className="text-xs text-slate-400">{a.notes}</div>}
                   <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
                     <div
-                      className="h-full rounded-full bg-emerald-400"
+                      className="h-full rounded-full bg-blue-400"
                       style={{ width: `${pct}%` }}
                     />
                   </div>

@@ -138,7 +138,7 @@ export default function Ledger() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search description, category, or method"
-            className="w-full rounded-lg border border-slate-300 py-1.5 pl-7 pr-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+            className="w-full rounded-lg border border-slate-300 py-1.5 pl-7 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
         </div>
         <select
@@ -165,12 +165,12 @@ export default function Ledger() {
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        <Stat label="Money In" value={formatMoney(totals.inSum)} cls="text-emerald-600" />
+        <Stat label="Money In" value={formatMoney(totals.inSum)} cls="text-blue-600" />
         <Stat label="Money Out" value={formatMoney(totals.outSum)} cls="text-red-600" />
         <Stat
           label="Net"
           value={formatMoney(totals.net)}
-          cls={totals.net >= 0 ? 'text-emerald-600' : 'text-red-600'}
+          cls={totals.net >= 0 ? 'text-blue-600' : 'text-red-600'}
         />
       </div>
 
@@ -233,7 +233,7 @@ export default function Ledger() {
         <button
           type="submit"
           disabled={busy}
-          className="mt-3 flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+          className="mt-3 flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
         >
           {busy ? <Loader2 size={15} className="animate-spin" /> : <Plus size={15} />}
           Add Entry
@@ -252,7 +252,7 @@ export default function Ledger() {
               <span
                 className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
                   e.direction === 'in'
-                    ? 'bg-emerald-50 text-emerald-600'
+                    ? 'bg-blue-50 text-blue-600'
                     : 'bg-red-50 text-red-600'
                 }`}
               >
@@ -274,7 +274,7 @@ export default function Ledger() {
               </div>
               <span
                 className={`text-sm font-semibold ${
-                  e.direction === 'in' ? 'text-emerald-600' : 'text-red-600'
+                  e.direction === 'in' ? 'text-blue-600' : 'text-red-600'
                 }`}
               >
                 {e.direction === 'in' ? '+' : '−'}
@@ -295,7 +295,7 @@ export default function Ledger() {
 }
 
 const inputCls =
-  'w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200'
+  'w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
 
 function Stat({ label, value, cls }) {
   return (

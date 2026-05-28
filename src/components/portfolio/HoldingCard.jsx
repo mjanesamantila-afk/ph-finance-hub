@@ -67,7 +67,7 @@ export default function HoldingCard({
           value={`${gainPositive ? '+' : ''}${formatMoney(m.gain, cur)} (${
             gainPositive ? '+' : ''
           }${m.gainPct.toFixed(2)}%)`}
-          valueClass={gainPositive ? 'text-emerald-600' : 'text-red-600'}
+          valueClass={gainPositive ? 'text-blue-600' : 'text-red-600'}
         />
         <Metric label="Shares / Units" value={m.shares ? m.shares.toLocaleString() : '—'} />
       </div>
@@ -80,7 +80,7 @@ export default function HoldingCard({
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           onClick={() => onBuyMore(holding)}
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100"
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-2 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100"
         >
           <ShoppingCart size={13} />
           Buy More

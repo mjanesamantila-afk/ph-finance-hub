@@ -48,7 +48,7 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <div className="mb-6 flex flex-col items-center text-center">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Wallet size={24} />
           </div>
           <h1 className="text-xl font-semibold text-slate-900">{BRAND.name}</h1>
@@ -67,7 +67,7 @@ export default function Login() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               placeholder="you@example.com"
             />
           </div>
@@ -83,7 +83,7 @@ export default function Login() {
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 pr-10 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 pr-10 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                 placeholder="••••••••"
               />
               <button
@@ -103,7 +103,7 @@ export default function Login() {
             </p>
           )}
           {message && (
-            <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+            <p className="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-700">
               {message}
             </p>
           )}
@@ -111,7 +111,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={busy}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-60"
           >
             {busy && <Loader2 size={16} className="animate-spin" />}
             {mode === 'login' ? 'Sign In' : 'Create Account'}
@@ -127,7 +127,7 @@ export default function Login() {
               setError('')
               setMessage('')
             }}
-            className="font-medium text-emerald-600 hover:underline"
+            className="font-medium text-blue-600 hover:underline"
           >
             {mode === 'login' ? 'Register' : 'Sign in'}
           </button>

@@ -141,7 +141,7 @@ export default function FreedomPlan() {
         <button
           onClick={save}
           disabled={busy}
-          className="mt-4 flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+          className="mt-4 flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
         >
           {busy ? <Loader2 size={16} className="animate-spin" /> : saved ? <Check size={16} /> : null}
           {saved ? 'Saved' : 'Save Plan'}
@@ -187,14 +187,14 @@ export default function FreedomPlan() {
         </div>
         <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-slate-100">
           <div
-            className={`h-full rounded-full ${onTrack ? 'bg-emerald-500' : 'bg-amber-500'}`}
+            className={`h-full rounded-full ${onTrack ? 'bg-blue-500' : 'bg-amber-500'}`}
             style={{ width: `${Math.min(progressPct, 100)}%` }}
           />
         </div>
         {neededCorpus > 0 && (
           <p
             className={`mt-3 rounded-lg px-3 py-2 text-sm ${
-              onTrack ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+              onTrack ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700'
             }`}
           >
             {onTrack
@@ -248,13 +248,13 @@ function Input({ label, value, onChange, placeholder }) {
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
       />
     </label>
   )
 }
 
-const TONES = { slate: 'text-slate-900', emerald: 'text-emerald-600' }
+const TONES = { slate: 'text-slate-900', emerald: 'text-blue-600' }
 
 function ResultCard({ icon: Icon, label, value, sub, tone = 'slate' }) {
   return (

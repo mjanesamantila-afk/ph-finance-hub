@@ -130,7 +130,7 @@ export default function SubscriptionForm({ subscription, onClose, onSaved }) {
               type="checkbox"
               checked={values.active}
               onChange={(e) => update('active', e.target.checked)}
-              className="h-4 w-4 accent-emerald-600"
+              className="h-4 w-4 accent-blue-600"
             />
             Active
           </label>
@@ -150,7 +150,7 @@ export default function SubscriptionForm({ subscription, onClose, onSaved }) {
             <button
               type="submit"
               disabled={busy}
-              className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
             >
               {busy && <Loader2 size={16} className="animate-spin" />}
               {isEdit ? 'Save Changes' : 'Add Subscription'}
@@ -163,7 +163,7 @@ export default function SubscriptionForm({ subscription, onClose, onSaved }) {
 }
 
 const inputCls =
-  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200'
+  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
 
 function Field({ label, children }) {
   return (

@@ -225,14 +225,14 @@ export default function Dashboard() {
           {budgetBasis > 0 && (
             <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
               <div
-                className={`h-full rounded-full ${overBudget ? 'bg-red-500' : 'bg-emerald-500'}`}
+                className={`h-full rounded-full ${overBudget ? 'bg-red-500' : 'bg-blue-500'}`}
                 style={{ width: `${Math.min(budgetPct, 100)}%` }}
               />
             </div>
           )}
           <div className="mt-2 text-xs text-slate-400">
             Net this month:{' '}
-            <span className={budget.net >= 0 ? 'text-emerald-600' : 'text-red-600'}>
+            <span className={budget.net >= 0 ? 'text-blue-600' : 'text-red-600'}>
               {budget.net >= 0 ? '+' : ''}
               {formatMoney(budget.net)}
             </span>
@@ -289,7 +289,7 @@ export default function Dashboard() {
                 <span
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
                     a.direction === 'in'
-                      ? 'bg-emerald-50 text-emerald-600'
+                      ? 'bg-blue-50 text-blue-600'
                       : 'bg-red-50 text-red-600'
                   }`}
                 >
@@ -308,7 +308,7 @@ export default function Dashboard() {
                 </div>
                 <span
                   className={`text-sm font-semibold ${
-                    a.direction === 'in' ? 'text-emerald-600' : 'text-red-600'
+                    a.direction === 'in' ? 'text-blue-600' : 'text-red-600'
                   }`}
                 >
                   {a.direction === 'in' ? '+' : '−'}
@@ -361,7 +361,7 @@ export default function Dashboard() {
 
 const TONES = {
   slate: 'text-slate-900',
-  emerald: 'text-emerald-600',
+  emerald: 'text-blue-600',
   red: 'text-red-600',
 }
 

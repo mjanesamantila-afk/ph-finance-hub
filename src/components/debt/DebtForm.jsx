@@ -203,7 +203,7 @@ export default function DebtForm({ debt, onClose, onSaved }) {
           </div>
 
           {showCalc && (
-            <div className="rounded-lg bg-emerald-50 px-3 py-3 text-sm">
+            <div className="rounded-lg bg-blue-50 px-3 py-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-slate-600">Total interest</span>
                 <span className="font-medium text-slate-800">
@@ -212,20 +212,20 @@ export default function DebtForm({ debt, onClose, onSaved }) {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-600">Total payable</span>
-                <span className="font-semibold text-emerald-700">
+                <span className="font-semibold text-blue-700">
                   {formatMoney(calc.totalPayable)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-600">Monthly payment</span>
-                <span className="font-semibold text-emerald-700">
+                <span className="font-semibold text-blue-700">
                   {formatMoney(calc.monthlyPayment)}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={applyCalc}
-                className="mt-2 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
+                className="mt-2 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
               >
                 Apply to Current balance &amp; Monthly payment
               </button>
@@ -277,7 +277,7 @@ export default function DebtForm({ debt, onClose, onSaved }) {
               type="checkbox"
               checked={values.active}
               onChange={(e) => update('active', e.target.checked)}
-              className="h-4 w-4 accent-emerald-600"
+              className="h-4 w-4 accent-blue-600"
             />
             Active
           </label>
@@ -297,7 +297,7 @@ export default function DebtForm({ debt, onClose, onSaved }) {
             <button
               type="submit"
               disabled={busy}
-              className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
             >
               {busy && <Loader2 size={16} className="animate-spin" />}
               {isEdit ? 'Save Changes' : 'Add Debt'}
@@ -310,7 +310,7 @@ export default function DebtForm({ debt, onClose, onSaved }) {
 }
 
 const inputCls =
-  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200'
+  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
 
 function Field({ label, children }) {
   return (

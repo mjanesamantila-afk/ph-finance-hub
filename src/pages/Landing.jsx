@@ -23,12 +23,12 @@ export default function Landing() {
   if (session) return <Navigate to="/dashboard" replace />
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-white to-white">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-white">
       {/* Top bar */}
       <header className="border-b border-slate-100 bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <Link to="/" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-white">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
               <Wallet size={18} />
             </span>
             <span className="text-lg font-semibold text-slate-900">{BRAND.name}</span>
@@ -45,8 +45,8 @@ export default function Landing() {
       {/* Hero */}
       <section className="mx-auto max-w-5xl px-4 pb-10 pt-12 sm:pt-16">
         <div className="text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
-            <Sparkles size={12} /> Free during beta · Made in PH 🇵🇭
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800">
+            <Sparkles size={12} className="text-yellow-600" /> Free during beta · Made in PH 🇵🇭
           </span>
           <h1 className="mt-5 text-3xl font-bold tracking-tight text-slate-900 sm:text-5xl">
             {BRAND.tagline}
@@ -58,7 +58,7 @@ export default function Landing() {
           <div className="mt-7 flex items-center justify-center gap-3">
             <Link
               to="/login"
-              className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700"
+              className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
             >
               Get started — it's free
               <ArrowRight size={16} />
@@ -151,7 +151,7 @@ export default function Landing() {
         </p>
         <Link
           to="/login"
-          className="mt-6 inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700"
+          className="mt-6 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
         >
           Create your free account
           <ArrowRight size={16} />
@@ -162,7 +162,7 @@ export default function Landing() {
       <footer className="border-t border-slate-100 bg-white">
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 px-4 py-6 text-sm text-slate-500 sm:flex-row">
           <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-600 text-white">
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-600 text-white">
               <Wallet size={13} />
             </span>
             <span className="font-medium text-slate-700">{BRAND.name}</span>
@@ -188,7 +188,7 @@ export default function Landing() {
 function Feature({ icon: Icon, title, body }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
         <Icon size={18} />
       </span>
       <h3 className="mt-3 font-semibold text-slate-900">{title}</h3>
