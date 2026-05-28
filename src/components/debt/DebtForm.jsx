@@ -3,7 +3,8 @@ import { X, Loader2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
 import { paymentMethods } from '../../lib/banks'
-import { createDebt, updateDebt } from '../../lib/debts'
+import { createDebt, updateDebt, computeLoanTotal } from '../../lib/debts'
+import { formatMoney } from '../../lib/finance'
 
 const CATEGORY_SUGGESTIONS = [
   'Credit Card',
@@ -23,6 +24,7 @@ const EMPTY = {
   current_balance: '',
   monthly_payment: '',
   interest_rate: '',
+  interest_period: 'monthly',
   due_day: '',
   term_months: '',
   payment_method: '',
@@ -45,6 +47,7 @@ export default function DebtForm({ debt, onClose, onSaved }) {
           current_balance: debt.current_balance ?? '',
           monthly_payment: debt.monthly_payment ?? '',
           interest_rate: debt.interest_rate ?? '',
+          interest_period: debt.interest_period || 'monthly',
           due_day: debt.due_day == null ? '' : String(debt.due_day),
           term_months: debt.term_months == null ? '' : String(debt.term_months),
           payment_method: debt.payment_method ?? '',
@@ -58,6 +61,22 @@ export default function DebtForm({ debt, onClose, onSaved }) {
 
   function update(field, value) {
     setValues((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const calc = computeLoanTotal({
+    principal: values.original_amount,
+    rate: values.interest_rate,
+    period: values.interest_period,
+    months: values.term_months,
+  })
+  const showCalc = calc.totalPayable > 0 && Number(values.term_months) > 0
+
+  function applyCalc() {
+    setValues((prev) => ({
+      ...prev,
+      current_balance: String(Math.round(calc.totalPayable * 100) / 100),
+      monthly_payment: String(Math.round(calc.monthlyPayment * 100) / 100),
+    }))
   }
 
   async function handleSubmit(e) {
@@ -147,15 +166,26 @@ export default function DebtForm({ debt, onClose, onSaved }) {
                 placeholder="5000"
               />
             </Field>
-            <Field label="Interest rate (% p.a.)">
-              <input
-                type="number"
-                step="any"
-                value={values.interest_rate}
-                onChange={(e) => update('interest_rate', e.target.value)}
-                className={inputCls}
-                placeholder="0"
-              />
+            <Field label="Interest rate (%)">
+              <div className="flex gap-1">
+                <input
+                  type="number"
+                  step="any"
+                  value={values.interest_rate}
+                  onChange={(e) => update('interest_rate', e.target.value)}
+                  className={`${inputCls} flex-1`}
+                  placeholder="0.68"
+                />
+                <select
+                  value={values.interest_period}
+                  onChange={(e) => update('interest_period', e.target.value)}
+                  className="rounded-lg border border-slate-300 px-2 py-2 text-xs"
+                  title="Rate period"
+                >
+                  <option value="monthly">/mo</option>
+                  <option value="annual">/yr</option>
+                </select>
+              </div>
             </Field>
             <Field label="Term (months)">
               <input
@@ -164,10 +194,40 @@ export default function DebtForm({ debt, onClose, onSaved }) {
                 value={values.term_months}
                 onChange={(e) => update('term_months', e.target.value)}
                 className={inputCls}
-                placeholder="24"
+                placeholder="12"
               />
             </Field>
           </div>
+
+          {showCalc && (
+            <div className="rounded-lg bg-emerald-50 px-3 py-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-slate-600">Total interest</span>
+                <span className="font-medium text-slate-800">
+                  {formatMoney(calc.totalInterest)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-600">Total payable</span>
+                <span className="font-semibold text-emerald-700">
+                  {formatMoney(calc.totalPayable)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-600">Monthly payment</span>
+                <span className="font-semibold text-emerald-700">
+                  {formatMoney(calc.monthlyPayment)}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={applyCalc}
+                className="mt-2 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
+              >
+                Apply to Current balance &amp; Monthly payment
+              </button>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="Due day of month">

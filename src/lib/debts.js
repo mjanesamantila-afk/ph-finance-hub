@@ -14,6 +14,7 @@ function toRow(values) {
       values.term_months === '' || values.term_months == null
         ? null
         : Number(values.term_months),
+    interest_period: values.interest_period || 'monthly',
     payment_method: values.payment_method || null,
     notes: values.notes || null,
     active: values.active !== false,
@@ -88,6 +89,23 @@ export async function deleteDebtPayment(payment, debt) {
     .delete()
     .eq('id', payment.id)
   if (e2) throw e2
+}
+
+// Simple add-on interest loan calc (common in PH consumer loans, Pag-IBIG MPL):
+// totalInterest = principal × monthlyRate × months. Returns total payable +
+// monthly payment so the form can suggest current_balance + monthly_payment.
+export function computeLoanTotal({ principal, rate, period, months }) {
+  const p = Number(principal) || 0
+  const r = Number(rate) || 0
+  const m = Number(months) || 0
+  if (p <= 0 || m <= 0 || r < 0) {
+    return { totalInterest: 0, totalPayable: p, monthlyPayment: 0 }
+  }
+  const monthlyRate = period === 'annual' ? r / 12 : r
+  const totalInterest = p * (monthlyRate / 100) * m
+  const totalPayable = p + totalInterest
+  const monthlyPayment = m > 0 ? totalPayable / m : 0
+  return { totalInterest, totalPayable, monthlyPayment }
 }
 
 export function debtProgress(debt) {
