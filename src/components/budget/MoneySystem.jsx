@@ -1,42 +1,40 @@
 import { useMemo, useState } from 'react'
-import { ArrowRight, Loader2, Check } from 'lucide-react'
+import { ArrowRight, Loader2, Check, Plus, Trash2 } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import { formatMoney } from '../../lib/finance'
 import { currentMonthKey, monthKeyOf, monthLabel } from '../../lib/dates'
+import {
+  readBuckets,
+  toMoneySystemPayload,
+  pickColor,
+  newBucketKey,
+} from '../../lib/money'
 import MonthSelector from './MonthSelector'
-
-const BUCKETS = [
-  { key: 'tithes', label: 'Generosity', color: '#D4537E' },
-  { key: 'invest', label: 'Invest', color: '#1D9E75' },
-  { key: 'savings', label: 'Savings', color: '#3266ad' },
-  { key: 'spend', label: 'Spend', color: '#E8A020' },
-]
-
-const DEFAULT_SYSTEM = { tithes: 10, invest: 20, savings: 20, spend: 50 }
 
 export default function MoneySystem() {
   const { settings, updateSettings, ledgerEntries } = useData()
 
-  const stored = settings?.money_system ?? DEFAULT_SYSTEM
-  const [system, setSystem] = useState(stored)
-  const [income, setIncome] = useState(settings?.income ?? 0) // typical / expected
-  const [syncKey, setSyncKey] = useState(JSON.stringify(stored))
+  const stored = settings?.money_system
+  const [buckets, setBuckets] = useState(() => readBuckets(settings))
+  const [income, setIncome] = useState(settings?.income ?? 0)
+  const [syncKey, setSyncKey] = useState(JSON.stringify(stored ?? null))
   const [busy, setBusy] = useState(false)
   const [saved, setSaved] = useState(false)
   const [month, setMonth] = useState(currentMonthKey())
+  const [newLabel, setNewLabel] = useState('')
+  const [newPct, setNewPct] = useState('')
 
-  // Re-sync from store when it loads/changes (during render, per React docs).
-  const storedKey = JSON.stringify(stored)
+  // Re-sync from store when it loads/changes (render-time pattern).
+  const storedKey = JSON.stringify(stored ?? null)
   if (storedKey !== syncKey) {
     setSyncKey(storedKey)
-    setSystem(stored)
+    setBuckets(readBuckets(settings))
     setIncome(settings?.income ?? 0)
   }
 
-  const total = BUCKETS.reduce((sum, b) => sum + (Number(system[b.key]) || 0), 0)
+  const total = buckets.reduce((sum, b) => sum + (Number(b.pct) || 0), 0)
   const valid = total === 100
 
-  // Actual income for the selected month = total "Money In" logged in the Ledger.
   const ledgerIncome = useMemo(
     () =>
       ledgerEntries
@@ -48,11 +46,33 @@ export default function MoneySystem() {
   const usingFallback = ledgerIncome <= 0
   const effectiveIncome = usingFallback ? typicalIncome : ledgerIncome
 
+  function updateBucket(key, patch) {
+    setBuckets((prev) => prev.map((b) => (b.key === key ? { ...b, ...patch } : b)))
+  }
+  function removeBucket(key) {
+    setBuckets((prev) => prev.filter((b) => b.key !== key))
+  }
+  function addBucket(e) {
+    e.preventDefault()
+    const label = newLabel.trim()
+    if (!label) return
+    const pct = Number(newPct) || 0
+    setBuckets((prev) => [
+      ...prev,
+      { key: newBucketKey(label), label, pct, color: pickColor(prev) },
+    ])
+    setNewLabel('')
+    setNewPct('')
+  }
+
   async function save() {
     setBusy(true)
     setSaved(false)
     try {
-      await updateSettings({ money_system: system, income: typicalIncome })
+      await updateSettings({
+        money_system: toMoneySystemPayload(buckets),
+        income: typicalIncome,
+      })
       setSaved(true)
     } finally {
       setBusy(false)
@@ -61,7 +81,7 @@ export default function MoneySystem() {
 
   return (
     <div className="space-y-5">
-      {/* Income for the selected month (from the Ledger) */}
+      {/* Income for the selected month */}
       <div className="rounded-xl border border-slate-200 bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -77,13 +97,12 @@ export default function MoneySystem() {
         </div>
         {usingFallback && (
           <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700">
-            No “Money In” logged for {monthLabel(month)} yet — showing your typical income
-            below. Add income in the Ledger tab and this updates automatically.
+            No “Money In” logged for {monthLabel(month)} yet — showing your typical income.
           </p>
         )}
       </div>
 
-      {/* Allocation */}
+      {/* Allocation — flexible buckets */}
       <div className="rounded-xl border border-slate-200 bg-white p-5">
         <div className="flex items-center justify-between">
           <h2 className="font-medium text-slate-900">Allocation</h2>
@@ -94,47 +113,81 @@ export default function MoneySystem() {
           </span>
         </div>
         <p className="mt-1 text-sm text-slate-500">
-          Amounts below are {monthLabel(month)}’s income split by your percentages.
+          Add, edit, or remove buckets. Amounts shown are {monthLabel(month)}’s income split
+          by your percentages.
         </p>
 
-        <div className="mt-4 space-y-4">
-          {BUCKETS.map((b) => {
-            const pct = Number(system[b.key]) || 0
-            const amount = (effectiveIncome * pct) / 100
+        <div className="mt-4 space-y-2">
+          {buckets.map((b) => {
+            const amount = (effectiveIncome * (Number(b.pct) || 0)) / 100
             return (
-              <div key={b.key}>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2 text-slate-700">
-                    <span
-                      className="inline-block h-2.5 w-2.5 rounded-full"
-                      style={{ backgroundColor: b.color }}
-                    />
-                    {b.label}
-                  </span>
-                  <span className="text-slate-500">
-                    {pct}% · {formatMoney(amount)}
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  step={1}
-                  value={pct}
-                  onChange={(e) =>
-                    setSystem((prev) => ({ ...prev, [b.key]: Number(e.target.value) }))
-                  }
-                  className="mt-1 w-full"
-                  style={{ accentColor: b.color }}
+              <div
+                key={b.key}
+                className="flex items-center gap-2 rounded-lg border border-slate-100 px-3 py-2"
+              >
+                <span
+                  className="inline-block h-3 w-3 shrink-0 rounded-full"
+                  style={{ backgroundColor: b.color }}
                 />
+                <input
+                  type="text"
+                  value={b.label}
+                  onChange={(e) => updateBucket(b.key, { label: e.target.value })}
+                  className="min-w-0 flex-1 rounded border border-transparent bg-transparent px-1 py-1 text-sm text-slate-800 hover:border-slate-200 focus:border-emerald-500 focus:outline-none"
+                  placeholder="Bucket name"
+                />
+                <input
+                  type="number"
+                  step="any"
+                  value={b.pct}
+                  onChange={(e) => updateBucket(b.key, { pct: e.target.value })}
+                  className="w-16 rounded border border-slate-300 px-2 py-1 text-sm"
+                />
+                <span className="w-8 text-xs text-slate-400">%</span>
+                <span className="hidden w-28 text-right text-sm text-slate-500 sm:inline-block">
+                  {formatMoney(amount)}
+                </span>
+                <button
+                  onClick={() => removeBucket(b.key)}
+                  className="text-slate-300 hover:text-red-500"
+                  title="Remove bucket"
+                >
+                  <Trash2 size={15} />
+                </button>
               </div>
             )
           })}
         </div>
 
+        {/* Add bucket */}
+        <form onSubmit={addBucket} className="mt-3 flex items-center gap-2">
+          <input
+            type="text"
+            value={newLabel}
+            onChange={(e) => setNewLabel(e.target.value)}
+            placeholder="New bucket (e.g. Travel, Emergency)"
+            className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+          <input
+            type="number"
+            step="any"
+            value={newPct}
+            onChange={(e) => setNewPct(e.target.value)}
+            placeholder="%"
+            className="w-20 rounded-lg border border-slate-300 px-2 py-2 text-sm"
+          />
+          <button
+            type="submit"
+            className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+          >
+            <Plus size={15} />
+            Add
+          </button>
+        </form>
+
         {!valid && (
           <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
-            Allocations must add up to exactly 100%.
+            Allocations must add up to exactly 100% (currently {total}%).
           </p>
         )}
 
@@ -170,7 +223,7 @@ export default function MoneySystem() {
         </button>
       </div>
 
-      {/* BDO -> Maribank flow diagram */}
+      {/* BDO -> bucket flow diagram (flexible to all buckets) */}
       <div className="rounded-xl border border-slate-200 bg-white p-5">
         <h2 className="font-medium text-slate-900">Cash Flow — {monthLabel(month)}</h2>
         <div className="mt-4 flex flex-col items-stretch gap-4 lg:flex-row lg:items-center">
@@ -182,11 +235,16 @@ export default function MoneySystem() {
           />
           <ArrowRight className="mx-auto rotate-90 text-slate-300 lg:rotate-0" size={22} />
           <div className="grid flex-1 grid-cols-2 gap-3">
-            {BUCKETS.map((b) => {
-              const amount = (effectiveIncome * (Number(system[b.key]) || 0)) / 100
+            {buckets.map((b) => {
+              const amount = (effectiveIncome * (Number(b.pct) || 0)) / 100
               const label = b.key === 'savings' ? 'Savings → Maribank' : b.label
               return (
-                <FlowBox key={b.key} title={label} amount={formatMoney(amount)} accent={b.color} />
+                <FlowBox
+                  key={b.key}
+                  title={label}
+                  amount={formatMoney(amount)}
+                  accent={b.color}
+                />
               )
             })}
           </div>
