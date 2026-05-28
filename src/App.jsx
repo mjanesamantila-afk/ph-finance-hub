@@ -9,6 +9,7 @@ import Investment from './pages/tabs/Investment'
 import Budget from './pages/tabs/Budget'
 import Savings from './pages/tabs/Savings'
 import Debt from './pages/tabs/Debt'
+import Account from './pages/tabs/Account'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="debt" element={<Debt />} />
             <Route path="savings" element={<Savings />} />
             <Route path="investment" element={<Investment />} />
+            <Route path="account" element={<Account />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
