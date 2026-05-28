@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Wallet, Loader2, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { BRAND } from '../config/branding'
 
 export default function Login() {
   const { signIn, signUp } = useAuth()
@@ -25,12 +26,12 @@ export default function Login() {
       if (mode === 'login') {
         const { error } = await signIn(email, password)
         if (error) throw error
-        navigate('/', { replace: true })
+        navigate('/dashboard', { replace: true })
       } else {
         const { data, error } = await signUp(email, password)
         if (error) throw error
         if (data.session) {
-          navigate('/', { replace: true })
+          navigate('/dashboard', { replace: true })
         } else {
           setMessage('Account created. Check your email to confirm, then log in.')
           setMode('login')
@@ -50,9 +51,7 @@ export default function Login() {
           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white">
             <Wallet size={24} />
           </div>
-          <h1 className="text-xl font-semibold text-slate-900">
-            Philippine Personal Finance Hub
-          </h1>
+          <h1 className="text-xl font-semibold text-slate-900">{BRAND.name}</h1>
           <p className="mt-1 text-sm text-slate-500">
             {mode === 'login' ? 'Sign in to your account' : 'Create a new account'}
           </p>
@@ -132,6 +131,11 @@ export default function Login() {
           >
             {mode === 'login' ? 'Register' : 'Sign in'}
           </button>
+        </p>
+        <p className="mt-3 text-center text-xs">
+          <Link to="/" className="text-slate-400 hover:text-slate-600">
+            ← Back to home
+          </Link>
         </p>
       </div>
     </div>

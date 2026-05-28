@@ -9,9 +9,10 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useData } from '../context/DataContext'
+import { BRAND } from '../config/branding'
 
 const TABS = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/spending', label: 'Spending', icon: Wallet, badge: 'spending' },
   { to: '/debt', label: 'Debt', icon: Landmark },
   { to: '/savings', label: 'Savings', icon: PiggyBank },
@@ -32,7 +33,7 @@ export default function Layout() {
                 <Wallet size={18} />
               </div>
               <span className="hidden font-semibold text-slate-900 sm:block">
-                PH Personal Finance Hub
+                {BRAND.name}
               </span>
             </div>
 
