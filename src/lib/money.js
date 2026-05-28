@@ -22,20 +22,32 @@ export function readBuckets(settings) {
       label: b.label,
       color: b.color || '#1D9E75',
       pct: Number(b.pct) || 0,
+      target: b.target || '',
     }))
   }
   if (ms && typeof ms === 'object') {
-    // Legacy flat format — map known keys; ignore unknown keys.
-    return DEFAULT_BUCKETS.map((b) => ({ ...b, pct: Number(ms[b.key]) || 0 }))
+    return DEFAULT_BUCKETS.map((b) => ({
+      ...b,
+      pct: Number(ms[b.key]) || 0,
+      target: b.key === 'savings' ? 'Maribank' : '',
+    }))
   }
-  return DEFAULT_BUCKETS
+  return DEFAULT_BUCKETS.map((b) => ({
+    ...b,
+    target: b.key === 'savings' ? 'Maribank' : '',
+  }))
 }
 
-// Build the payload to save: buckets[] + flat key:pct so other tabs that read
-// settings.money_system.invest etc. keep working.
-export function toMoneySystemPayload(buckets) {
+export function readIncomeSource(settings) {
+  return settings?.money_system?.income_source || 'BDO'
+}
+
+// Build the payload to save: buckets[] (with target) + flat key:pct so other
+// tabs that read settings.money_system.invest etc. keep working, plus the
+// chosen income_source.
+export function toMoneySystemPayload(buckets, incomeSource) {
   const flat = Object.fromEntries(buckets.map((b) => [b.key, Number(b.pct) || 0]))
-  return { ...flat, buckets }
+  return { ...flat, buckets, income_source: incomeSource || null }
 }
 
 // Pick the first color from the palette not already used by another bucket.

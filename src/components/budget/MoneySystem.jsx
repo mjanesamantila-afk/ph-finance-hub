@@ -5,6 +5,7 @@ import { formatMoney } from '../../lib/finance'
 import { currentMonthKey, monthKeyOf, monthLabel } from '../../lib/dates'
 import {
   readBuckets,
+  readIncomeSource,
   toMoneySystemPayload,
   pickColor,
   newBucketKey,
@@ -12,10 +13,11 @@ import {
 import MonthSelector from './MonthSelector'
 
 export default function MoneySystem() {
-  const { settings, updateSettings, ledgerEntries } = useData()
+  const { settings, updateSettings, ledgerEntries, digitalBanks } = useData()
 
   const stored = settings?.money_system
   const [buckets, setBuckets] = useState(() => readBuckets(settings))
+  const [incomeSource, setIncomeSource] = useState(() => readIncomeSource(settings))
   const [income, setIncome] = useState(settings?.income ?? 0)
   const [syncKey, setSyncKey] = useState(JSON.stringify(stored ?? null))
   const [busy, setBusy] = useState(false)
@@ -29,8 +31,14 @@ export default function MoneySystem() {
   if (storedKey !== syncKey) {
     setSyncKey(storedKey)
     setBuckets(readBuckets(settings))
+    setIncomeSource(readIncomeSource(settings))
     setIncome(settings?.income ?? 0)
   }
+
+  const targetOptions = ['', 'Cash', ...digitalBanks.map((b) => b.bank_name)]
+  const sourceOptions = ['BDO', 'Cash', ...digitalBanks.map((b) => b.bank_name)]
+  const sourceList = [...new Set(sourceOptions)]
+  const sourceColor = '#7F77DD'
 
   const total = buckets.reduce((sum, b) => sum + (Number(b.pct) || 0), 0)
   const valid = total === 100
@@ -70,7 +78,7 @@ export default function MoneySystem() {
     setSaved(false)
     try {
       await updateSettings({
-        money_system: toMoneySystemPayload(buckets),
+        money_system: toMoneySystemPayload(buckets, incomeSource),
         income: typicalIncome,
       })
       setSaved(true)
@@ -223,21 +231,38 @@ export default function MoneySystem() {
         </button>
       </div>
 
-      {/* BDO -> bucket flow diagram (flexible to all buckets) */}
+      {/* Flexible Cash Flow */}
       <div className="rounded-xl border border-slate-200 bg-white p-5">
-        <h2 className="font-medium text-slate-900">Cash Flow — {monthLabel(month)}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-medium text-slate-900">Cash Flow — {monthLabel(month)}</h2>
+          <label className="flex items-center gap-2 text-sm">
+            <span className="text-slate-500">Income lands in:</span>
+            <select
+              value={incomeSource}
+              onChange={(e) => setIncomeSource(e.target.value)}
+              className="rounded-lg border border-slate-300 px-2 py-1 text-sm"
+            >
+              {sourceList.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
         <div className="mt-4 flex flex-col items-stretch gap-4 lg:flex-row lg:items-center">
           <FlowBox
-            title="BDO"
+            title={incomeSource || 'Income'}
             subtitle="Income lands here"
             amount={formatMoney(effectiveIncome)}
-            accent="#7F77DD"
+            accent={sourceColor}
           />
           <ArrowRight className="mx-auto rotate-90 text-slate-300 lg:rotate-0" size={22} />
           <div className="grid flex-1 grid-cols-2 gap-3">
             {buckets.map((b) => {
               const amount = (effectiveIncome * (Number(b.pct) || 0)) / 100
-              const label = b.key === 'savings' ? 'Savings → Maribank' : b.label
+              const label = b.target ? `${b.label} → ${b.target}` : b.label
               return (
                 <FlowBox
                   key={b.key}
@@ -249,6 +274,54 @@ export default function MoneySystem() {
             })}
           </div>
         </div>
+
+        {buckets.length > 0 && (
+          <div className="mt-5 border-t border-slate-100 pt-4">
+            <h3 className="text-sm font-medium text-slate-700">Where each bucket goes</h3>
+            <div className="mt-2 space-y-2">
+              {buckets.map((b) => (
+                <div key={b.key} className="flex items-center gap-2 text-sm">
+                  <span
+                    className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: b.color }}
+                  />
+                  <span className="flex-1 truncate text-slate-700">{b.label}</span>
+                  <span className="text-slate-400">→</span>
+                  <select
+                    value={b.target || ''}
+                    onChange={(e) =>
+                      setBuckets((prev) =>
+                        prev.map((x) =>
+                          x.key === b.key ? { ...x, target: e.target.value } : x
+                        )
+                      )
+                    }
+                    className="rounded-lg border border-slate-300 px-2 py-1 text-sm"
+                  >
+                    {targetOptions.map((t) => (
+                      <option key={t || 'none'} value={t}>
+                        {t || '— None —'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={save}
+          disabled={!valid || busy}
+          className="mt-4 flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+        >
+          {busy ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : saved ? (
+            <Check size={16} />
+          ) : null}
+          {saved ? 'Saved' : 'Save'}
+        </button>
       </div>
     </div>
   )
