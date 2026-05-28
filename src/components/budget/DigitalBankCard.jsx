@@ -1,18 +1,25 @@
 import { useState } from 'react'
-import { Plus, PiggyBank, Loader2 } from 'lucide-react'
+import { Plus, PiggyBank, Loader2, Pencil, Trash2, Check, X } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
-import { DB_COLORS } from '../../config/constants'
 import { formatMoney } from '../../lib/finance'
 import { currentMonthKey, monthLabel, todayISO } from '../../lib/dates'
+import { bankColor } from '../../lib/banks'
 import {
   updateBank,
   addBankTransaction,
   recordInterest,
+  renameBank,
+  deleteBank,
 } from '../../lib/budget'
+import ConfirmDialog from '../ConfirmDialog'
 
 export default function DigitalBankCard({ bank, transactions, interestRows, onChanged }) {
   const { user } = useAuth()
-  const color = DB_COLORS[bank.bank_name] || '#3266ad'
+  const color = bankColor(bank.bank_name)
+  const [isRenaming, setIsRenaming] = useState(false)
+  const [nameDraft, setNameDraft] = useState(bank.bank_name)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [renameError, setRenameError] = useState('')
 
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -62,17 +69,108 @@ export default function DigitalBankCard({ bank, transactions, interestRows, onCh
     }
   }
 
+  async function saveRename() {
+    const next = nameDraft.trim()
+    if (!next || next === bank.bank_name) {
+      setIsRenaming(false)
+      setRenameError('')
+      return
+    }
+    setBusy(true)
+    setRenameError('')
+    try {
+      await renameBank(user.id, bank, next)
+      setIsRenaming(false)
+      await onChanged()
+    } catch (err) {
+      setRenameError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function handleDelete() {
+    setBusy(true)
+    try {
+      await deleteBank(bank.id)
+      setConfirmDelete(false)
+      await onChanged()
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
       <div className="flex items-center gap-2">
         <span
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-white"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white"
           style={{ backgroundColor: color }}
         >
           <PiggyBank size={16} />
         </span>
-        <h3 className="font-semibold text-slate-900">{bank.bank_name}</h3>
+        {isRenaming ? (
+          <div className="flex flex-1 items-center gap-1">
+            <input
+              autoFocus
+              value={nameDraft}
+              onChange={(e) => setNameDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') saveRename()
+                if (e.key === 'Escape') {
+                  setIsRenaming(false)
+                  setNameDraft(bank.bank_name)
+                  setRenameError('')
+                }
+              }}
+              className="min-w-0 flex-1 rounded border border-slate-300 px-2 py-1 text-sm font-semibold"
+            />
+            <button
+              onClick={saveRename}
+              disabled={busy}
+              className="text-emerald-600 hover:text-emerald-700"
+              title="Save"
+            >
+              <Check size={16} />
+            </button>
+            <button
+              onClick={() => {
+                setIsRenaming(false)
+                setNameDraft(bank.bank_name)
+                setRenameError('')
+              }}
+              className="text-slate-400 hover:text-slate-600"
+              title="Cancel"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        ) : (
+          <>
+            <h3 className="flex-1 truncate font-semibold text-slate-900">{bank.bank_name}</h3>
+            <button
+              onClick={() => {
+                setNameDraft(bank.bank_name)
+                setIsRenaming(true)
+              }}
+              className="text-slate-400 hover:text-slate-700"
+              title="Rename"
+            >
+              <Pencil size={14} />
+            </button>
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="text-slate-300 hover:text-red-500"
+              title="Delete bank"
+            >
+              <Trash2 size={14} />
+            </button>
+          </>
+        )}
       </div>
+      {renameError && (
+        <p className="mt-2 text-xs text-red-600">{renameError}</p>
+      )}
 
       <div className="mt-4 grid grid-cols-2 gap-3">
         <label className="block">
@@ -195,6 +293,14 @@ export default function DigitalBankCard({ bank, transactions, interestRows, onCh
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title={`Delete "${bank.bank_name}"?`}
+        message="Past transactions and interest history for this bank will be preserved, but the bank itself will be removed from your list. References elsewhere (savings goals' source, payment methods on bills/subscriptions) still keep the old name — update them yourself if needed."
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </div>
   )
 }

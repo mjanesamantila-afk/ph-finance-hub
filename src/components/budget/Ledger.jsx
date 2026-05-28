@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react'
 import { Plus, Trash2, Loader2, ArrowDownLeft, ArrowUpRight, Download, Search } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import { useAuth } from '../../context/AuthContext'
-import { PAYMENT_METHODS } from '../../config/constants'
 import { allSpendingCategories } from '../../lib/categories'
+import { paymentMethods } from '../../lib/banks'
 import { formatMoney } from '../../lib/finance'
 import { currentMonthKey, monthKeyOf, todayISO } from '../../lib/dates'
 import { addLedgerEntry, deleteLedgerEntry } from '../../lib/budget'
@@ -11,7 +11,8 @@ import MonthSelector from './MonthSelector'
 
 export default function Ledger() {
   const { user } = useAuth()
-  const { ledgerEntries, settings, refetch } = useData()
+  const { ledgerEntries, settings, digitalBanks, refetch } = useData()
+  const METHODS = paymentMethods(digitalBanks)
 
   const [month, setMonth] = useState(currentMonthKey())
   const [filter, setFilter] = useState('all') // all | in | out
@@ -216,7 +217,7 @@ export default function Ledger() {
             className={inputCls}
           >
             <option value="">Method…</option>
-            {PAYMENT_METHODS.map((m) => (
+            {METHODS.map((m) => (
               <option key={m} value={m}>
                 {m}
               </option>

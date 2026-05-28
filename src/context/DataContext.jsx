@@ -10,8 +10,9 @@ const DUE_SOON_DAYS = 7
 
 const DataContext = createContext(null)
 
-// On first login: ensure a user_settings row exists and seed the 4 digital
-// banks at ₱0. Safe to call repeatedly — only inserts what's missing.
+// First-time bootstrap: create user_settings AND seed the default banks. Only
+// runs the first time the user logs in (when no user_settings row exists yet).
+// This way, banks the user later deletes stay deleted on next logins.
 async function bootstrapUser(userId) {
   const { data: settingsRow } = await supabase
     .from('user_settings')
@@ -19,25 +20,11 @@ async function bootstrapUser(userId) {
     .eq('user_id', userId)
     .maybeSingle()
 
-  if (!settingsRow) {
-    await supabase.from('user_settings').insert({ user_id: userId })
-  }
+  if (settingsRow) return // already set up
 
-  const { data: banks } = await supabase
-    .from('digital_banks')
-    .select('bank_name')
-    .eq('user_id', userId)
-
-  const existing = new Set((banks ?? []).map((b) => b.bank_name))
-  const missing = DIGITAL_BANKS.filter((name) => !existing.has(name)).map((name) => ({
-    user_id: userId,
-    bank_name: name,
-    balance: 0,
-  }))
-
-  if (missing.length) {
-    await supabase.from('digital_banks').insert(missing)
-  }
+  await supabase.from('user_settings').insert({ user_id: userId })
+  const seed = DIGITAL_BANKS.map((name) => ({ user_id: userId, bank_name: name, balance: 0 }))
+  await supabase.from('digital_banks').insert(seed)
 }
 
 export function DataProvider({ children }) {

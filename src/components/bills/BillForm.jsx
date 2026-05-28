@@ -2,11 +2,9 @@ import { useState } from 'react'
 import { X, Loader2 } from 'lucide-react'
 import { createBill, updateBill } from '../../lib/bills'
 import { allSpendingCategories } from '../../lib/categories'
-import { PAYMENT_METHODS } from '../../config/constants'
+import { paymentMethods } from '../../lib/banks'
 import { useAuth } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
-
-const METHODS = [...new Set(['Credit Card', 'Auto Debit', ...PAYMENT_METHODS])]
 
 const EMPTY = {
   name: '',
@@ -20,11 +18,12 @@ const EMPTY = {
 
 export default function BillForm({ bill, startMonth, startLabel, onClose, onSaved }) {
   const { user } = useAuth()
-  const { settings } = useData()
+  const { settings, digitalBanks } = useData()
   const isEdit = Boolean(bill)
 
   // Categories mirror the Spending tab (custom + minus removed).
   const CATEGORY_OPTIONS = allSpendingCategories(settings)
+  const METHODS = paymentMethods(digitalBanks)
 
   const [values, setValues] = useState(() =>
     bill

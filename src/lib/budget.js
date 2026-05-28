@@ -36,6 +36,55 @@ export async function updateBank(id, patch) {
   if (error) throw error
 }
 
+export async function createBank(userId, values) {
+  const name = String(values.bank_name || '').trim()
+  if (!name) throw new Error('Bank name is required')
+  const { error } = await supabase.from('digital_banks').insert({
+    user_id: userId,
+    bank_name: name,
+    balance: Number(values.balance) || 0,
+    interest_rate: Number(values.interest_rate) || 0,
+  })
+  if (error) {
+    if (error.code === '23505') throw new Error('A bank with that name already exists.')
+    throw error
+  }
+}
+
+// Rename a bank and update all rows that reference its old name as text
+// (bank_transactions, interest_history). Other places that reference a bank
+// by name (savings_goals.source, payment methods) are independent strings
+// and won't be touched.
+export async function renameBank(userId, bank, newName) {
+  const trimmed = String(newName || '').trim()
+  if (!trimmed) throw new Error('Bank name is required')
+  if (trimmed === bank.bank_name) return
+
+  const { error: e1 } = await supabase
+    .from('digital_banks')
+    .update({ bank_name: trimmed })
+    .eq('id', bank.id)
+  if (e1) {
+    if (e1.code === '23505') throw new Error('A bank with that name already exists.')
+    throw e1
+  }
+  await supabase
+    .from('bank_transactions')
+    .update({ bank_name: trimmed })
+    .eq('user_id', userId)
+    .eq('bank_name', bank.bank_name)
+  await supabase
+    .from('interest_history')
+    .update({ bank_name: trimmed })
+    .eq('user_id', userId)
+    .eq('bank_name', bank.bank_name)
+}
+
+export async function deleteBank(id) {
+  const { error } = await supabase.from('digital_banks').delete().eq('id', id)
+  if (error) throw error
+}
+
 // Insert a bank transaction and adjust the bank's running balance.
 export async function addBankTransaction(userId, bank, values) {
   const amount = Number(values.amount) || 0

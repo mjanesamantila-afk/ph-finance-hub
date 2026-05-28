@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { X, Loader2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
-import { PAYMENT_METHODS } from '../../config/constants'
+import { useData } from '../../context/DataContext'
+import { paymentMethods } from '../../lib/banks'
 import { createSubscription, updateSubscription } from '../../lib/subscriptions'
-
-const METHODS = [...new Set(['Credit Card', 'Auto Debit', ...PAYMENT_METHODS])]
 
 const EMPTY = {
   name: '',
@@ -17,6 +16,8 @@ const EMPTY = {
 
 export default function SubscriptionForm({ subscription, onClose, onSaved }) {
   const { user } = useAuth()
+  const { digitalBanks } = useData()
+  const METHODS = paymentMethods(digitalBanks)
   const isEdit = Boolean(subscription)
 
   const [values, setValues] = useState(() =>
