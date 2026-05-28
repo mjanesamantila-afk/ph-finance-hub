@@ -4,6 +4,7 @@ import {
   TrendingUp,
   Wallet,
   PiggyBank,
+  Landmark,
   LogOut,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -12,6 +13,7 @@ import { useData } from '../context/DataContext'
 const TABS = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/spending', label: 'Spending', icon: Wallet, badge: 'spending' },
+  { to: '/debt', label: 'Debt', icon: Landmark },
   { to: '/savings', label: 'Savings', icon: PiggyBank },
   { to: '/investment', label: 'Investment', icon: TrendingUp, badge: 'breach' },
 ]

@@ -8,6 +8,7 @@ import Dashboard from './pages/tabs/Dashboard'
 import Investment from './pages/tabs/Investment'
 import Budget from './pages/tabs/Budget'
 import Savings from './pages/tabs/Savings'
+import Debt from './pages/tabs/Debt'
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           >
             <Route index element={<Dashboard />} />
             <Route path="spending" element={<Budget />} />
+            <Route path="debt" element={<Debt />} />
             <Route path="savings" element={<Savings />} />
             <Route path="investment" element={<Investment />} />
           </Route>

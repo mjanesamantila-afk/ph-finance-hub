@@ -165,3 +165,23 @@ create table investment_allocations (
 
 alter table investment_allocations enable row level security;
 create policy "Users own their investment allocations" on investment_allocations for all using (auth.uid() = user_id);
+
+-- Debts (credit cards, loans, etc.) tracked with current balance and monthly payment.
+create table debts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users on delete cascade not null,
+  name text not null,
+  category text,
+  original_amount numeric default 0,
+  current_balance numeric default 0,
+  monthly_payment numeric default 0,
+  interest_rate numeric default 0,
+  due_day int,
+  payment_method text,
+  notes text,
+  active boolean default true,
+  created_at timestamptz default now()
+);
+
+alter table debts enable row level security;
+create policy "Users own their debts" on debts for all using (auth.uid() = user_id);
