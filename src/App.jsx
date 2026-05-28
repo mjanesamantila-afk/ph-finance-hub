@@ -5,13 +5,11 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import Dashboard from './pages/tabs/Dashboard'
-import Portfolio from './pages/tabs/Portfolio'
-import RiskManagement from './pages/tabs/RiskManagement'
+import Investment from './pages/tabs/Investment'
 import Budget from './pages/tabs/Budget'
 import Bills from './pages/tabs/Bills'
 import Savings from './pages/tabs/Savings'
 import Subscriptions from './pages/tabs/Subscriptions'
-import FreedomPlan from './pages/tabs/FreedomPlan'
 
 function App() {
   return (
@@ -29,13 +27,11 @@ function App() {
             }
           >
             <Route index element={<Dashboard />} />
-            <Route path="portfolio" element={<Portfolio />} />
-            <Route path="risk" element={<RiskManagement />} />
             <Route path="budget" element={<Budget />} />
             <Route path="bills" element={<Bills />} />
             <Route path="savings" element={<Savings />} />
             <Route path="subscriptions" element={<Subscriptions />} />
-            <Route path="freedom" element={<FreedomPlan />} />
+            <Route path="investment" element={<Investment />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

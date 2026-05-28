@@ -151,3 +151,17 @@ create table subscriptions (
 
 alter table subscriptions enable row level security;
 create policy "Users own their subscriptions" on subscriptions for all using (auth.uid() = user_id);
+
+-- Investment Plan: monthly allocations like MP2, VUL, etc.
+create table investment_allocations (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users on delete cascade not null,
+  name text not null,
+  amount numeric default 0,
+  notes text,
+  active boolean default true,
+  created_at timestamptz default now()
+);
+
+alter table investment_allocations enable row level security;
+create policy "Users own their investment allocations" on investment_allocations for all using (auth.uid() = user_id);

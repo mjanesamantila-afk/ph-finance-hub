@@ -1,10 +1,8 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import {
   LayoutDashboard,
-  Briefcase,
-  ShieldAlert,
+  TrendingUp,
   Wallet,
-  Target,
   CalendarClock,
   PiggyBank,
   CreditCard,
@@ -19,9 +17,7 @@ const TABS = [
   { to: '/bills', label: 'Bills Payment', icon: CalendarClock, badge: 'bills' },
   { to: '/subscriptions', label: 'Subscriptions', icon: CreditCard, badge: 'subs' },
   { to: '/savings', label: 'Savings', icon: PiggyBank },
-  { to: '/portfolio', label: 'Portfolio', icon: Briefcase },
-  { to: '/risk', label: 'Risk Management', icon: ShieldAlert, badge: 'breach' },
-  { to: '/freedom', label: 'Freedom Plan', icon: Target },
+  { to: '/investment', label: 'Investment', icon: TrendingUp, badge: 'breach' },
 ]
 
 export default function Layout() {
