@@ -154,6 +154,16 @@ export default function Debt() {
                       {d.payment_method && <span>· {d.payment_method}</span>}
                       {d.due_day && <span>· Due day {d.due_day}</span>}
                       {d.interest_rate ? <span>· {d.interest_rate}% APR</span> : null}
+                      {d.term_months ? <span>· {d.term_months} mo term</span> : null}
+                      {(() => {
+                        const mp = Number(d.monthly_payment) || 0
+                        const cb = Number(d.current_balance) || 0
+                        if (mp > 0 && cb > 0) {
+                          const left = Math.ceil(cb / mp)
+                          return <span>· ~{left} mo left</span>
+                        }
+                        return null
+                      })()}
                     </div>
                   </div>
                   <div className="flex shrink-0 gap-2">

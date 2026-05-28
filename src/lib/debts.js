@@ -10,6 +10,10 @@ function toRow(values) {
     monthly_payment: values.monthly_payment === '' ? 0 : Number(values.monthly_payment),
     interest_rate: values.interest_rate === '' ? 0 : Number(values.interest_rate),
     due_day: values.due_day === '' || values.due_day == null ? null : Number(values.due_day),
+    term_months:
+      values.term_months === '' || values.term_months == null
+        ? null
+        : Number(values.term_months),
     payment_method: values.payment_method || null,
     notes: values.notes || null,
     active: values.active !== false,

@@ -177,6 +177,7 @@ create table debts (
   monthly_payment numeric default 0,
   interest_rate numeric default 0,
   due_day int,
+  term_months int,
   payment_method text,
   notes text,
   active boolean default true,

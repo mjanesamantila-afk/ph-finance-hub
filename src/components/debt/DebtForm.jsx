@@ -24,6 +24,7 @@ const EMPTY = {
   monthly_payment: '',
   interest_rate: '',
   due_day: '',
+  term_months: '',
   payment_method: '',
   notes: '',
   active: true,
@@ -45,6 +46,7 @@ export default function DebtForm({ debt, onClose, onSaved }) {
           monthly_payment: debt.monthly_payment ?? '',
           interest_rate: debt.interest_rate ?? '',
           due_day: debt.due_day == null ? '' : String(debt.due_day),
+          term_months: debt.term_months == null ? '' : String(debt.term_months),
           payment_method: debt.payment_method ?? '',
           notes: debt.notes ?? '',
           active: debt.active !== false,
@@ -134,7 +136,7 @@ export default function DebtForm({ debt, onClose, onSaved }) {
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <Field label="Monthly payment (₱)">
               <input
                 type="number"
@@ -153,6 +155,16 @@ export default function DebtForm({ debt, onClose, onSaved }) {
                 onChange={(e) => update('interest_rate', e.target.value)}
                 className={inputCls}
                 placeholder="0"
+              />
+            </Field>
+            <Field label="Term (months)">
+              <input
+                type="number"
+                min="1"
+                value={values.term_months}
+                onChange={(e) => update('term_months', e.target.value)}
+                className={inputCls}
+                placeholder="24"
               />
             </Field>
           </div>
