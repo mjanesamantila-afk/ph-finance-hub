@@ -1,58 +1,34 @@
-// Fetch live PSE prices through the allorigins CORS proxy.
-// Primary source: PSELookup. Fallback: Yahoo Finance (.PS suffix).
-const PROXY = 'https://api.allorigins.win/get?url='
+// Fetch live PSE prices.
+//
+// The original PSELookup + allorigins + Yahoo Finance .PS stack stopped
+// working in 2025/2026 (PSELookup is offline; Yahoo dropped .PS tickers).
+// phisix-api3 publishes current Philippine stock data with CORS headers, so
+// we can call it directly — no proxy needed.
 
-async function fetchViaProxy(targetUrl) {
-  const res = await fetch(PROXY + encodeURIComponent(targetUrl))
-  if (!res.ok) throw new Error(`Proxy responded ${res.status}`)
-  const wrapper = await res.json()
-  if (!wrapper?.contents) throw new Error('Empty proxy response')
-  return JSON.parse(wrapper.contents)
-}
+const HOSTS = [
+  'https://phisix-api3.appspot.com',
+  'https://phisix-api4.appspot.com', // sometimes down, used as backup
+]
 
-// PSELookup payloads vary across versions; probe the known shapes.
-function extractPselookupPrice(data) {
-  const candidates = [
-    data?.price?.amount,
-    data?.data?.price?.amount,
-    data?.price,
-    data?.data?.price,
-    data?.last_traded_price,
-  ]
-  for (const c of candidates) {
-    const n = Number(c)
-    if (Number.isFinite(n) && n > 0) return n
-  }
-  return null
-}
-
-function extractYahooPrice(data) {
-  const n = Number(data?.chart?.result?.[0]?.meta?.regularMarketPrice)
+function extractPrice(data) {
+  const stock = data?.stocks?.[0]
+  const n = Number(stock?.price?.amount)
   return Number.isFinite(n) && n > 0 ? n : null
 }
 
-// Returns the latest price as a number, or null if both sources fail.
 export async function fetchPsePrice(ticker) {
   const t = String(ticker || '').trim().toUpperCase()
   if (!t) return null
 
-  try {
-    const data = await fetchViaProxy(`https://pselookup.vrymel.com/api/stocks/${t}`)
-    const price = extractPselookupPrice(data)
-    if (price) return price
-  } catch {
-    // fall through to Yahoo
+  for (const host of HOSTS) {
+    try {
+      const res = await fetch(`${host}/stocks/${encodeURIComponent(t)}.json`)
+      if (!res.ok) continue
+      const price = extractPrice(await res.json())
+      if (price) return price
+    } catch {
+      // try next host
+    }
   }
-
-  try {
-    const data = await fetchViaProxy(
-      `https://query1.finance.yahoo.com/v8/finance/chart/${t}.PS?interval=1d&range=1d`
-    )
-    const price = extractYahooPrice(data)
-    if (price) return price
-  } catch {
-    // both failed
-  }
-
   return null
 }
