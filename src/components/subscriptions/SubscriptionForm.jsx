@@ -11,6 +11,7 @@ const EMPTY = {
   amount: '',
   cycle: 'monthly',
   payment_method: 'Credit Card',
+  renewal_date: '',
   active: true,
 }
 
@@ -25,6 +26,7 @@ export default function SubscriptionForm({ subscription, onClose, onSaved }) {
           amount: subscription.amount ?? '',
           cycle: subscription.cycle ?? 'monthly',
           payment_method: subscription.payment_method ?? 'Credit Card',
+          renewal_date: subscription.renewal_date ?? '',
           active: subscription.active !== false,
         }
       : { ...EMPTY }
@@ -98,19 +100,29 @@ export default function SubscriptionForm({ subscription, onClose, onSaved }) {
             </Field>
           </div>
 
-          <Field label="Payment method">
-            <select
-              value={values.payment_method}
-              onChange={(e) => update('payment_method', e.target.value)}
-              className={inputCls}
-            >
-              {[...new Set([values.payment_method, ...METHODS].filter(Boolean))].map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-          </Field>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Payment method">
+              <select
+                value={values.payment_method}
+                onChange={(e) => update('payment_method', e.target.value)}
+                className={inputCls}
+              >
+                {[...new Set([values.payment_method, ...METHODS].filter(Boolean))].map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Next renewal date">
+              <input
+                type="date"
+                value={values.renewal_date}
+                onChange={(e) => update('renewal_date', e.target.value)}
+                className={inputCls}
+              />
+            </Field>
+          </div>
 
           <label className="flex items-center gap-2 text-sm text-slate-600">
             <input

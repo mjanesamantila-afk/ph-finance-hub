@@ -17,7 +17,7 @@ const TABS = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/budget', label: 'Budget', icon: Wallet },
   { to: '/bills', label: 'Bills Payment', icon: CalendarClock, badge: 'bills' },
-  { to: '/subscriptions', label: 'Subscriptions', icon: CreditCard },
+  { to: '/subscriptions', label: 'Subscriptions', icon: CreditCard, badge: 'subs' },
   { to: '/savings', label: 'Savings', icon: PiggyBank },
   { to: '/portfolio', label: 'Portfolio', icon: Briefcase },
   { to: '/risk', label: 'Risk Management', icon: ShieldAlert, badge: 'breach' },
@@ -26,7 +26,7 @@ const TABS = [
 
 export default function Layout() {
   const { user, signOut } = useAuth()
-  const { breachCount, billsDueSoon } = useData()
+  const { breachCount, billsDueSoon, subscriptionsDueSoon } = useData()
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -58,7 +58,14 @@ export default function Layout() {
 
           <nav className="flex gap-1 overflow-x-auto">
             {TABS.map(({ to, label, icon: Icon, end, badge }) => {
-              const count = badge === 'breach' ? breachCount : badge === 'bills' ? billsDueSoon : 0
+              const count =
+                badge === 'breach'
+                  ? breachCount
+                  : badge === 'bills'
+                    ? billsDueSoon
+                    : badge === 'subs'
+                      ? subscriptionsDueSoon
+                      : 0
               return (
                 <NavLink
                   key={to}

@@ -8,6 +8,7 @@ import {
   TrendingUp,
   TrendingDown,
   AlertTriangle,
+  Activity,
 } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import { deriveHolding, formatMoney } from '../../lib/finance'
@@ -40,6 +41,36 @@ export default function Dashboard() {
     globalStopLoss,
     breachCount,
   } = useData()
+
+  // Recent Activity: merge ledger entries + bank transactions, newest first.
+  const recentActivity = useMemo(() => {
+    const items = []
+    for (const e of ledgerEntries) {
+      items.push({
+        id: 'L' + e.id,
+        date: e.date,
+        sort: e.created_at || e.date,
+        direction: e.direction,
+        amount: Number(e.amount) || 0,
+        label: e.description || e.category || 'Ledger entry',
+        meta: [e.category, e.method].filter(Boolean).join(' · '),
+        kind: 'ledger',
+      })
+    }
+    for (const t of bankTransactions) {
+      items.push({
+        id: 'B' + t.id,
+        date: t.date,
+        sort: t.created_at || t.date,
+        direction: t.direction,
+        amount: Number(t.amount) || 0,
+        label: t.note || `${t.bank_name} ${t.direction === 'in' ? 'deposit' : 'withdrawal'}`,
+        meta: t.bank_name,
+        kind: 'bank',
+      })
+    }
+    return items.sort((a, b) => (b.sort > a.sort ? 1 : -1)).slice(0, 10)
+  }, [ledgerEntries, bankTransactions])
 
   const [month, setMonth] = useState(currentMonthKey())
 
@@ -245,6 +276,49 @@ export default function Dashboard() {
           <AllocationBars title={`Spending Breakdown · ${monthLabel(month)}`} data={budget.breakdown} />
         </div>
       </section>
+
+      {/* ===== Recent Activity ===== */}
+      {recentActivity.length > 0 && (
+        <section>
+          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-400">
+            <Activity size={14} /> Recent Activity
+          </h2>
+          <div className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white">
+            {recentActivity.map((a) => (
+              <div key={a.id} className="flex items-center gap-3 px-4 py-3">
+                <span
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                    a.direction === 'in'
+                      ? 'bg-emerald-50 text-emerald-600'
+                      : 'bg-red-50 text-red-600'
+                  }`}
+                >
+                  {a.direction === 'in' ? (
+                    <ArrowDownLeft size={15} />
+                  ) : (
+                    <ArrowUpRight size={15} />
+                  )}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium text-slate-800">{a.label}</div>
+                  <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
+                    <span>{a.date}</span>
+                    {a.meta && <span>· {a.meta}</span>}
+                  </div>
+                </div>
+                <span
+                  className={`text-sm font-semibold ${
+                    a.direction === 'in' ? 'text-emerald-600' : 'text-red-600'
+                  }`}
+                >
+                  {a.direction === 'in' ? '+' : '−'}
+                  {formatMoney(a.amount)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ===== Investments (secondary) ===== */}
       <section>

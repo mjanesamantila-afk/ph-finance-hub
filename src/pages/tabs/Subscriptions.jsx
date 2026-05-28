@@ -1,14 +1,18 @@
 import { useMemo, useState } from 'react'
-import { Plus, Pencil, Trash2, CreditCard } from 'lucide-react'
+import { Plus, Pencil, Trash2, CreditCard, Bell } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import {
   deleteSubscription,
   monthlyCost,
   yearlyCost,
+  nextRenewal,
 } from '../../lib/subscriptions'
+import { daysUntil, MONTH_NAMES } from '../../lib/dates'
 import { formatMoney } from '../../lib/finance'
 import SubscriptionForm from '../../components/subscriptions/SubscriptionForm'
 import ConfirmDialog from '../../components/ConfirmDialog'
+
+const DUE_SOON_DAYS = 7
 
 export default function Subscriptions() {
   const { subscriptions, loading, refetch } = useData()
@@ -21,6 +25,23 @@ export default function Subscriptions() {
     () => subscriptions.filter((s) => s.active !== false),
     [subscriptions]
   )
+
+  // Subscriptions renewing in the next 7 days, soonest first.
+  const dueSoon = useMemo(() => {
+    return active
+      .map((s) => {
+        const due = nextRenewal(s)
+        return due ? { sub: s, due, days: daysUntil(due) } : null
+      })
+      .filter((u) => u && u.days >= 0 && u.days <= DUE_SOON_DAYS)
+      .sort((a, b) => a.days - b.days)
+  }, [active])
+
+  function dueLabel(days) {
+    if (days === 0) return 'Renews today'
+    if (days === 1) return 'Renews tomorrow'
+    return `Renews in ${days} days`
+  }
 
   const { totalMonthly, totalYearly, byMethod } = useMemo(() => {
     let m = 0
@@ -65,6 +86,31 @@ export default function Subscriptions() {
           Add Subscription
         </button>
       </div>
+
+      {dueSoon.length > 0 && (
+        <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
+          <div className="flex items-center gap-2 font-medium text-amber-800">
+            <Bell size={16} />
+            {dueSoon.length} subscription{dueSoon.length > 1 ? 's' : ''} renewing in the next{' '}
+            {DUE_SOON_DAYS} days
+          </div>
+          <div className="mt-2 space-y-1">
+            {dueSoon.map(({ sub, due, days }) => (
+              <div
+                key={sub.id}
+                className="flex flex-wrap items-center justify-between gap-2 text-sm text-amber-900"
+              >
+                <span>
+                  {sub.name} · {formatMoney(sub.amount)} · {sub.payment_method || 'Unspecified'}
+                </span>
+                <span className="font-medium">
+                  {dueLabel(days)} ({MONTH_NAMES[due.getMonth()].slice(0, 3)} {due.getDate()})
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {active.length > 0 && (
         <>

@@ -3,6 +3,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { DIGITAL_BANKS } from '../config/constants'
 import { countBreaches } from '../lib/finance'
 import { nextDueDate, daysUntil, monthKeyFromDate } from '../lib/dates'
+import { nextRenewal } from '../lib/subscriptions'
 import { useAuth } from './AuthContext'
 
 const DUE_SOON_DAYS = 7
@@ -139,6 +140,19 @@ export function DataProvider({ children }) {
     [holdings, globalStopLoss]
   )
 
+  // Subscriptions renewing within the next week (active only).
+  const subscriptionsDueSoon = useMemo(
+    () =>
+      subscriptions.filter((s) => {
+        if (s.active === false) return false
+        const due = nextRenewal(s)
+        if (!due) return false
+        const d = daysUntil(due)
+        return d >= 0 && d <= DUE_SOON_DAYS
+      }).length,
+    [subscriptions]
+  )
+
   // Bills due within the next week (active only) — drives the nav reminder badge.
   const billsDueSoon = useMemo(
     () =>
@@ -168,6 +182,7 @@ export function DataProvider({ children }) {
     loading,
     breachCount,
     billsDueSoon,
+    subscriptionsDueSoon,
     globalStopLoss,
     refetch,
     updateSettings,

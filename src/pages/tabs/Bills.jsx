@@ -11,9 +11,11 @@ import {
   AlertTriangle,
 } from 'lucide-react'
 import { useData } from '../../context/DataContext'
+import { useAuth } from '../../context/AuthContext'
 import {
   deleteBill,
-  setBillPaid,
+  markBillPaid,
+  markBillUnpaid,
   setBillMonthAmount,
   endBillFrom,
   effectiveAmount,
@@ -27,6 +29,7 @@ import BillCalendar from '../../components/bills/BillCalendar'
 const DUE_SOON_DAYS = 7
 
 export default function Bills() {
+  const { user } = useAuth()
   const { bills, loading, refetch } = useData()
 
   const now = new Date()
@@ -100,7 +103,11 @@ export default function Bills() {
   }
 
   async function handleSetPaid(bill, monthKey, paid) {
-    await setBillPaid(bill, monthKey, paid)
+    if (paid) {
+      await markBillPaid(bill, monthKey, user.id)
+    } else {
+      await markBillUnpaid(bill, monthKey)
+    }
     await refetch()
   }
   async function handleSetAmount(bill, value) {

@@ -2,10 +2,21 @@ import { useState } from 'react'
 import { X, Loader2 } from 'lucide-react'
 import { createBill, updateBill } from '../../lib/bills'
 import { allSpendingCategories } from '../../lib/categories'
+import { PAYMENT_METHODS } from '../../config/constants'
 import { useAuth } from '../../context/AuthContext'
 import { useData } from '../../context/DataContext'
 
-const EMPTY = { name: '', amount: '', due_day: '1', category: '', notes: '', active: true }
+const METHODS = [...new Set(['Credit Card', 'Auto Debit', ...PAYMENT_METHODS])]
+
+const EMPTY = {
+  name: '',
+  amount: '',
+  due_day: '1',
+  category: '',
+  notes: '',
+  payment_method: '',
+  active: true,
+}
 
 export default function BillForm({ bill, startMonth, startLabel, onClose, onSaved }) {
   const { user } = useAuth()
@@ -23,6 +34,7 @@ export default function BillForm({ bill, startMonth, startLabel, onClose, onSave
           due_day: String(bill.due_day ?? 1),
           category: bill.category ?? '',
           notes: bill.notes ?? '',
+          payment_method: bill.payment_method ?? '',
           active: bill.active !== false,
         }
       : { ...EMPTY }
@@ -108,6 +120,21 @@ export default function BillForm({ bill, startMonth, startLabel, onClose, onSave
               {[...new Set([values.category, ...CATEGORY_OPTIONS].filter(Boolean))].map((c) => (
                 <option key={c} value={c}>
                   {c}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="Payment method (optional)">
+            <select
+              value={values.payment_method}
+              onChange={(e) => update('payment_method', e.target.value)}
+              className={inputCls}
+            >
+              <option value="">None</option>
+              {[...new Set([values.payment_method, ...METHODS].filter(Boolean))].map((m) => (
+                <option key={m} value={m}>
+                  {m}
                 </option>
               ))}
             </select>

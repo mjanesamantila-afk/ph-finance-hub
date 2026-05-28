@@ -114,6 +114,7 @@ create table bills (
   month_amounts jsonb default '{}',
   ended_from text,
   starts_from text,
+  payment_method text,
   created_at timestamptz default now()
 );
 
@@ -144,6 +145,7 @@ create table subscriptions (
   cycle text default 'monthly',
   payment_method text,
   active boolean default true,
+  renewal_date date,
   created_at timestamptz default now()
 );
 

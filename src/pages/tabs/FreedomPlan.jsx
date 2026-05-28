@@ -9,6 +9,7 @@ const DEFAULT_PLAN = {
   monthlyGoal: '',
   expectedReturn: 8,
   monthlyContribution: '',
+  inflation: 4,
 }
 
 // FV = PV*(1+r)^n + PMT*((1+r)^n - 1)/r   (annual compounding)
@@ -63,7 +64,12 @@ export default function FreedomPlan() {
     : monthlyInvest
   const pmtAnnual = monthlyContribution * 12
 
-  const neededCorpus = (monthlyGoal * 12) / 0.04
+  // Inflation-adjusted corpus: your monthly goal in *today's* pesos becomes a
+  // larger number by retirement, so the corpus you need is larger too.
+  const inflation = (Number(plan.inflation) || 0) / 100
+  const futureMonthlyGoal =
+    years > 0 ? monthlyGoal * Math.pow(1 + inflation, years) : monthlyGoal
+  const neededCorpus = (futureMonthlyGoal * 12) / 0.04
   const projected = years > 0 ? projectedBalance(years, pv, pmtAnnual, r) : pv
   const progressPct = neededCorpus > 0 ? (projected / neededCorpus) * 100 : 0
   const onTrack = neededCorpus > 0 && projected >= neededCorpus
@@ -126,6 +132,11 @@ export default function FreedomPlan() {
             onChange={(v) => field('monthlyContribution', v)}
             placeholder={`auto: ${Math.round(monthlyInvest)}`}
           />
+          <Input
+            label="Inflation (% p.a.)"
+            value={plan.inflation}
+            onChange={(v) => field('inflation', v)}
+          />
         </div>
         <button
           onClick={save}
@@ -149,7 +160,13 @@ export default function FreedomPlan() {
           icon={Target}
           label="Corpus Needed (4% rule)"
           value={formatMoney(neededCorpus)}
-          sub={monthlyGoal > 0 ? `for ${formatMoney(monthlyGoal)}/mo passive income` : 'set a monthly goal'}
+          sub={
+            monthlyGoal > 0
+              ? years > 0 && inflation > 0
+                ? `for ${formatMoney(monthlyGoal)}/mo today (${formatMoney(futureMonthlyGoal)}/mo in ${years}y after ${plan.inflation}% inflation)`
+                : `for ${formatMoney(monthlyGoal)}/mo passive income`
+              : 'set a monthly goal'
+          }
         />
         <ResultCard
           icon={TrendingUp}

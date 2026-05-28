@@ -1,12 +1,20 @@
 import { useState } from 'react'
 import { X, Loader2, PiggyBank } from 'lucide-react'
 import { addToSavings } from '../../lib/savings'
+import { addBankTransaction } from '../../lib/budget'
+import { todayISO } from '../../lib/dates'
 import { formatMoney } from '../../lib/finance'
+import { useAuth } from '../../context/AuthContext'
+import { useData } from '../../context/DataContext'
 
 export default function AddSavingsForm({ goal, onClose, onSaved }) {
+  const { user } = useAuth()
+  const { digitalBanks } = useData()
   const [amount, setAmount] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+
+  const linkedBank = digitalBanks.find((b) => b.bank_name === goal.source)
 
   const add = Number(amount) || 0
   const currentSaved = Number(goal.saved_amount) || 0
@@ -25,6 +33,16 @@ export default function AddSavingsForm({ goal, onClose, onSaved }) {
     setError('')
     try {
       await addToSavings(goal, add)
+      // If the goal is linked to one of your banks, also record a deposit
+      // there so bank balances stay in sync with savings progress.
+      if (linkedBank) {
+        await addBankTransaction(user.id, linkedBank, {
+          direction: 'in',
+          amount: add,
+          note: `Savings: ${goal.name}`,
+          date: todayISO(),
+        })
+      }
       await onSaved()
       onClose()
     } catch (err) {
@@ -69,6 +87,12 @@ export default function AddSavingsForm({ goal, onClose, onSaved }) {
             <Row label="Progress" value={`${Math.round(newPct)}% of ${formatMoney(target)}`} />
           </div>
 
+          {linkedBank && (
+            <p className="rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-700">
+              Also deposits {formatMoney(add)} into <strong>{linkedBank.bank_name}</strong> in
+              your Banks tab.
+            </p>
+          )}
           {reached && (
             <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
               🎉 This reaches your goal!

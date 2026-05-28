@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Plus, Trash2, Loader2, ArrowDownLeft, ArrowUpRight } from 'lucide-react'
+import { Plus, Trash2, Loader2, ArrowDownLeft, ArrowUpRight, Download, Search } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import { useAuth } from '../../context/AuthContext'
 import { PAYMENT_METHODS } from '../../config/constants'
@@ -15,6 +15,8 @@ export default function Ledger() {
 
   const [month, setMonth] = useState(currentMonthKey())
   const [filter, setFilter] = useState('all') // all | in | out
+  const [categoryFilter, setCategoryFilter] = useState('all')
+  const [search, setSearch] = useState('')
   const [busy, setBusy] = useState(false)
   const [form, setForm] = useState({
     direction: 'out',
@@ -29,10 +31,45 @@ export default function Ledger() {
   const allCategories = allSpendingCategories(settings)
 
   const visible = useMemo(() => {
+    const q = search.trim().toLowerCase()
     return ledgerEntries
       .filter((e) => monthKeyOf(e.date) === month)
       .filter((e) => (filter === 'all' ? true : e.direction === filter))
-  }, [ledgerEntries, month, filter])
+      .filter((e) => (categoryFilter === 'all' ? true : e.category === categoryFilter))
+      .filter((e) => {
+        if (!q) return true
+        return (
+          (e.description || '').toLowerCase().includes(q) ||
+          (e.category || '').toLowerCase().includes(q) ||
+          (e.method || '').toLowerCase().includes(q)
+        )
+      })
+  }, [ledgerEntries, month, filter, categoryFilter, search])
+
+  // Build a CSV from the visible entries and trigger a download.
+  function exportCSV() {
+    const rows = [['Date', 'Direction', 'Amount', 'Category', 'Method', 'Description']]
+    for (const e of visible) {
+      rows.push([
+        e.date,
+        e.direction,
+        e.amount ?? '',
+        e.category ?? '',
+        e.method ?? '',
+        (e.description ?? '').replace(/"/g, '""'),
+      ])
+    }
+    const csv = rows.map((r) => r.map((c) => `"${c}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `ledger-${month}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
 
   const totals = useMemo(() => {
     let inSum = 0
@@ -87,6 +124,43 @@ export default function Ledger() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Search, category filter, export */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative flex-1 min-w-[180px]">
+          <Search
+            size={14}
+            className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
+          />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search description, category, or method"
+            className="w-full rounded-lg border border-slate-300 py-1.5 pl-7 pr-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
+          />
+        </div>
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
+        >
+          <option value="all">All categories</option>
+          {allCategories.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={exportCSV}
+          disabled={visible.length === 0}
+          className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100 disabled:opacity-50"
+          title="Download visible entries as CSV"
+        >
+          <Download size={14} />
+          Export CSV
+        </button>
       </div>
 
       <div className="grid grid-cols-3 gap-4">

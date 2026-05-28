@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { monthLabel, todayISO } from './dates'
 
 function toRow(values) {
   return {
@@ -7,6 +8,7 @@ function toRow(values) {
     due_day: Number(values.due_day) || 1,
     category: values.category || null,
     notes: values.notes || null,
+    payment_method: values.payment_method || null,
     active: values.active !== false,
   }
 }
@@ -41,6 +43,44 @@ export async function setBillPaid(bill, monthKey, paid) {
 
 export function isBillPaid(bill, monthKey) {
   return (bill?.paid_months || []).includes(monthKey)
+}
+
+// Mark a bill paid for a month AND create a matching ledger out-entry so your
+// spending stays in sync (no double typing).
+export async function markBillPaid(bill, monthKey, userId) {
+  const current = bill.paid_months || []
+  const nextPaid = Array.from(new Set([...current, monthKey]))
+  const { error: updErr } = await supabase
+    .from('bills')
+    .update({ paid_months: nextPaid })
+    .eq('id', bill.id)
+  if (updErr) throw updErr
+
+  const amount = effectiveAmount(bill, monthKey)
+  if (amount > 0 && userId) {
+    const { error: ledErr } = await supabase.from('ledger_entries').insert({
+      user_id: userId,
+      date: todayISO(),
+      description: `${bill.name} (${monthLabel(monthKey)})`,
+      category: bill.category || null,
+      amount,
+      direction: 'out',
+      method: bill.payment_method || null,
+    })
+    if (ledErr) throw ledErr
+  }
+}
+
+// Un-mark for a month. Doesn't auto-delete the ledger entry so prior history
+// stays intact; you can delete that entry manually in the Ledger if needed.
+export async function markBillUnpaid(bill, monthKey) {
+  const current = bill.paid_months || []
+  const next = current.filter((m) => m !== monthKey)
+  const { error } = await supabase
+    .from('bills')
+    .update({ paid_months: next })
+    .eq('id', bill.id)
+  if (error) throw error
 }
 
 // Amount for a specific month: a per-month override if set, else the default.
