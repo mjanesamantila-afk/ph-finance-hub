@@ -50,6 +50,16 @@ export default function Spending() {
   const totalSpent = monthOut.reduce((s, e) => s + (Number(e.amount) || 0), 0)
   const overAllocated = totalAllocated > 0 && totalSpent > totalAllocated
 
+  // Sync target: the Money System "Spend" bucket for this month's income.
+  const monthIncome = ledgerEntries
+    .filter((e) => e.direction === 'in' && monthKeyOf(e.date) === month)
+    .reduce((s, e) => s + (Number(e.amount) || 0), 0)
+  const effectiveIncome = monthIncome > 0 ? monthIncome : Number(settings?.income) || 0
+  const spendPct = Number(settings?.money_system?.spend) || 0
+  const spendBudget = (effectiveIncome * spendPct) / 100
+  const remainingToAllocate = spendBudget - totalAllocated
+  const overSpendBudget = spendBudget > 0 && totalAllocated > spendBudget
+
   function spentFor(category) {
     return monthOut
       .filter((e) => e.category === category)
@@ -117,6 +127,31 @@ export default function Spending() {
         <div className="mt-1 text-xs text-slate-400">
           Cash {formatMoney(cashAllocated)} · Digital {formatMoney(digitalAllocated)}
         </div>
+
+        {/* Sync with Money System Spend bucket */}
+        {spendBudget > 0 && (
+          <div className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-500">
+                Spend Budget (Money System · {spendPct}%)
+              </span>
+              <span className="font-medium text-slate-800">{formatMoney(spendBudget)}</span>
+            </div>
+            <div className="mt-1 flex items-center justify-between text-xs">
+              <span
+                className={overSpendBudget ? 'font-medium text-red-600' : 'text-emerald-600'}
+              >
+                {overSpendBudget
+                  ? `Over by ${formatMoney(Math.abs(remainingToAllocate))}`
+                  : `Remaining to allocate ${formatMoney(remainingToAllocate)}`}
+              </span>
+              <span className="text-slate-400">
+                {formatMoney(totalAllocated)} of {formatMoney(spendBudget)}
+              </span>
+            </div>
+          </div>
+        )}
+
         <div className="mt-3 flex justify-between text-sm">
           <span className={overAllocated ? 'font-medium text-red-600' : 'text-slate-500'}>
             {formatMoney(totalSpent)} spent this month
