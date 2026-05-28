@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Plus, Pencil, Trash2, Receipt, Bell, Landmark } from 'lucide-react'
 import { useData } from '../../context/DataContext'
-import { deleteDebt, debtProgress } from '../../lib/debts'
+import { deleteDebt, debtProgress, deleteDebtPayment } from '../../lib/debts'
 import { formatMoney } from '../../lib/finance'
 import { nextDueDate, daysUntil, MONTH_NAMES } from '../../lib/dates'
 import DebtForm from '../../components/debt/DebtForm'
@@ -11,7 +11,7 @@ import ConfirmDialog from '../../components/ConfirmDialog'
 const DUE_SOON_DAYS = 7
 
 export default function Debt() {
-  const { debts, loading, refetch } = useData()
+  const { debts, debtPayments, loading, refetch } = useData()
 
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState(null)
@@ -54,6 +54,11 @@ export default function Debt() {
     if (!confirmDelete) return
     await deleteDebt(confirmDelete.id)
     setConfirmDelete(null)
+    await refetch()
+  }
+
+  async function handleDeletePayment(payment, debt) {
+    await deleteDebtPayment(payment, debt)
     await refetch()
   }
 
@@ -202,6 +207,44 @@ export default function Debt() {
                 {d.notes && (
                   <p className="mt-3 text-xs text-slate-400">{d.notes}</p>
                 )}
+
+                {/* Payment history */}
+                {(() => {
+                  const payments = debtPayments
+                    .filter((p) => p.debt_id === d.id)
+                    .slice(0, 5)
+                  if (payments.length === 0) return null
+                  return (
+                    <div className="mt-4 border-t border-slate-100 pt-3">
+                      <div className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        Recent Payments
+                      </div>
+                      <div className="mt-2 space-y-1">
+                        {payments.map((p) => (
+                          <div
+                            key={p.id}
+                            className="flex items-center gap-2 text-sm"
+                          >
+                            <span className="text-slate-400">{p.date}</span>
+                            <span className="flex-1 truncate text-slate-600">
+                              {p.note || 'Payment'}
+                            </span>
+                            <span className="font-medium text-emerald-600">
+                              {formatMoney(p.amount)}
+                            </span>
+                            <button
+                              onClick={() => handleDeletePayment(p, d)}
+                              className="text-slate-300 hover:text-red-500"
+                              title="Delete payment (restores balance)"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })()}
               </div>
             )
           })}

@@ -9,6 +9,7 @@ export default function PayDebtForm({ debt, onClose, onSaved }) {
   const { user } = useAuth()
   const [amount, setAmount] = useState(debt.monthly_payment ? String(debt.monthly_payment) : '')
   const [date, setDate] = useState(todayISO())
+  const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
@@ -26,7 +27,7 @@ export default function PayDebtForm({ debt, onClose, onSaved }) {
     setBusy(true)
     setError('')
     try {
-      await makeDebtPayment(debt, user.id, { amount: pay, date })
+      await makeDebtPayment(debt, user.id, { amount: pay, date, note })
       await onSaved()
       onClose()
     } catch (err) {
@@ -71,6 +72,18 @@ export default function PayDebtForm({ debt, onClose, onSaved }) {
               />
             </label>
           </div>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-slate-600">
+              Note (optional)
+            </span>
+            <input
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              className={inputCls}
+              placeholder="e.g. extra principal, billing month, ref no."
+            />
+          </label>
 
           <div className="space-y-1 rounded-lg bg-slate-50 px-3 py-3 text-sm">
             <Row label="Current balance" value={formatMoney(current)} />

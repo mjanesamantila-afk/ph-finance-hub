@@ -41,6 +41,7 @@ export function DataProvider({ children }) {
   const [subscriptions, setSubscriptions] = useState([])
   const [investmentAllocations, setInvestmentAllocations] = useState([])
   const [debts, setDebts] = useState([])
+  const [debtPayments, setDebtPayments] = useState([])
   const [loading, setLoading] = useState(true)
 
   const refetch = useCallback(async () => {
@@ -61,6 +62,7 @@ export function DataProvider({ children }) {
       subsRes,
       invAllocRes,
       debtsRes,
+      debtPaymentsRes,
     ] = await Promise.all([
       supabase.from('holdings').select('*').eq('user_id', user.id),
       supabase.from('user_settings').select('*').eq('user_id', user.id).maybeSingle(),
@@ -86,6 +88,11 @@ export function DataProvider({ children }) {
         .eq('user_id', user.id)
         .order('created_at'),
       supabase.from('debts').select('*').eq('user_id', user.id).order('created_at'),
+      supabase
+        .from('debt_payments')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('date', { ascending: false }),
     ])
     setHoldings(holdingsRes.data ?? [])
     setSettings(settingsRes.data ?? null)
@@ -99,6 +106,7 @@ export function DataProvider({ children }) {
     setSubscriptions(subsRes.data ?? [])
     setInvestmentAllocations(invAllocRes.data ?? [])
     setDebts(debtsRes.data ?? [])
+    setDebtPayments(debtPaymentsRes.data ?? [])
     setLoading(false)
   }, [user])
 
@@ -180,6 +188,7 @@ export function DataProvider({ children }) {
     subscriptions,
     investmentAllocations,
     debts,
+    debtPayments,
     loading,
     breachCount,
     billsDueSoon,

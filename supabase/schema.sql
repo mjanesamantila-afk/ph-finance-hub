@@ -185,3 +185,17 @@ create table debts (
 
 alter table debts enable row level security;
 create policy "Users own their debts" on debts for all using (auth.uid() = user_id);
+
+-- Individual debt payments (history per debt)
+create table debt_payments (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users on delete cascade not null,
+  debt_id uuid references debts on delete cascade not null,
+  amount numeric not null,
+  date date not null,
+  note text,
+  created_at timestamptz default now()
+);
+
+alter table debt_payments enable row level security;
+create policy "Users own their debt payments" on debt_payments for all using (auth.uid() = user_id);

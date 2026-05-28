@@ -34,28 +34,55 @@ export async function deleteDebt(id) {
   if (error) throw error
 }
 
-// Record a payment: drop the current balance and log a Money Out entry in
-// the Ledger so the payment shows up in your spending.
-export async function makeDebtPayment(debt, userId, { amount, date } = {}) {
+// Record a payment: drop the current balance, save the payment to the
+// debt_payments history, and log a Money Out entry in the Ledger.
+export async function makeDebtPayment(debt, userId, { amount, date, note } = {}) {
   const amt = Number(amount) || 0
   if (amt <= 0) return
   const prev = Number(debt.current_balance) || 0
   const next = Math.max(prev - amt, 0)
+  const paymentDate = date || todayISO()
+
   const { error: e1 } = await supabase
     .from('debts')
     .update({ current_balance: next })
     .eq('id', debt.id)
   if (e1) throw e1
 
-  const { error: e2 } = await supabase.from('ledger_entries').insert({
+  const { error: e2 } = await supabase.from('debt_payments').insert({
     user_id: userId,
-    date: date || todayISO(),
+    debt_id: debt.id,
+    amount: amt,
+    date: paymentDate,
+    note: note || null,
+  })
+  if (e2) throw e2
+
+  const { error: e3 } = await supabase.from('ledger_entries').insert({
+    user_id: userId,
+    date: paymentDate,
     description: `${debt.name} payment`,
     category: debt.category || 'Debt',
     amount: amt,
     direction: 'out',
     method: debt.payment_method || null,
   })
+  if (e3) throw e3
+}
+
+// Delete a payment record. Restores the amount to the debt's current balance
+// (doesn't touch the linked Ledger entry — delete that manually if you want).
+export async function deleteDebtPayment(payment, debt) {
+  const restored = (Number(debt.current_balance) || 0) + (Number(payment.amount) || 0)
+  const { error: e1 } = await supabase
+    .from('debts')
+    .update({ current_balance: restored })
+    .eq('id', debt.id)
+  if (e1) throw e1
+  const { error: e2 } = await supabase
+    .from('debt_payments')
+    .delete()
+    .eq('id', payment.id)
   if (e2) throw e2
 }
 
