@@ -9,6 +9,7 @@ import {
   TrendingDown,
   AlertTriangle,
   Activity,
+  Lightbulb,
 } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import { deriveHolding, formatMoney } from '../../lib/finance'
@@ -198,7 +199,7 @@ export default function Dashboard() {
 
         {/* Reordered: Income → Remaining → Spent → Savings */}
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <StatCard icon={ArrowDownLeft} label="Income" value={formatMoney(budget.income)} tone="emerald" />
+          <StatCard icon={ArrowDownLeft} label="Income" value={formatMoney(budget.income)} tone="yellow" />
           <StatCard
             icon={Wallet2}
             label="Remaining to Spend"
@@ -350,9 +351,18 @@ export default function Dashboard() {
         </div>
 
         {holdings.length === 0 && (
-          <p className="mt-4 rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-slate-400">
-            Add investments in the Portfolio tab to populate this section.
-          </p>
+          <div className="mt-4 flex items-start gap-3 rounded-xl border border-yellow-200 bg-yellow-50 p-4">
+            <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-yellow-100 text-yellow-700">
+              <Lightbulb size={15} />
+            </span>
+            <div className="text-sm">
+              <div className="font-semibold text-yellow-900">Pro tip</div>
+              <p className="mt-0.5 text-yellow-800">
+                Add your first holding in the <strong>Portfolio</strong> tab to start tracking
+                gains, allocation, and stop-loss alerts.
+              </p>
+            </div>
+          </div>
         )}
       </section>
     </div>
@@ -363,6 +373,7 @@ const TONES = {
   slate: 'text-slate-900',
   emerald: 'text-blue-600',
   red: 'text-red-600',
+  yellow: 'text-yellow-600',
 }
 
 function StatCard({ icon: Icon, label, value, sub, tone = 'slate' }) {

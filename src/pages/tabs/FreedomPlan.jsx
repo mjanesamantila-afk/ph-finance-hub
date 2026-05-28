@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Target, TrendingUp, Loader2, Check } from 'lucide-react'
+import { Target, TrendingUp, Loader2, Check, Star } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import { deriveHolding, formatMoney } from '../../lib/finance'
 
@@ -212,25 +212,39 @@ export default function FreedomPlan() {
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-400">
             <tr>
+              <th className="w-10 px-5 py-2"></th>
               <th className="px-5 py-2">Milestone</th>
               <th className="px-5 py-2">Target</th>
               <th className="px-5 py-2">Projected Age Reached</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {milestones.map((m) => (
-              <tr key={m.pct}>
-                <td className="px-5 py-2.5 font-medium text-slate-800">{m.pct}%</td>
-                <td className="px-5 py-2.5 text-slate-600">{formatMoney(m.target)}</td>
-                <td className="px-5 py-2.5 text-slate-600">
-                  {m.reachedAge === null
-                    ? '—'
-                    : currentAge > 0
-                      ? `Age ${m.reachedAge}`
-                      : `In ${m.reachedAge} yrs`}
-                </td>
-              </tr>
-            ))}
+            {milestones.map((m) => {
+              const achievedToday = m.target > 0 && pv >= m.target
+              return (
+                <tr key={m.pct} className={achievedToday ? 'bg-yellow-50/60' : ''}>
+                  <td className="px-5 py-2.5">
+                    <Star
+                      size={16}
+                      className={
+                        achievedToday
+                          ? 'fill-yellow-400 text-yellow-500'
+                          : 'text-slate-200'
+                      }
+                    />
+                  </td>
+                  <td className="px-5 py-2.5 font-medium text-slate-800">{m.pct}%</td>
+                  <td className="px-5 py-2.5 text-slate-600">{formatMoney(m.target)}</td>
+                  <td className="px-5 py-2.5 text-slate-600">
+                    {m.reachedAge === null
+                      ? '—'
+                      : currentAge > 0
+                        ? `Age ${m.reachedAge}`
+                        : `In ${m.reachedAge} yrs`}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

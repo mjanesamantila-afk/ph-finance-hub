@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Plus, Pencil, Trash2, Receipt, Bell, Landmark } from 'lucide-react'
+import { Plus, Pencil, Trash2, Receipt, Bell, Landmark, Lightbulb } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import { deleteDebt, deleteDebtPayment } from '../../lib/debts'
 import { formatMoney } from '../../lib/finance'
@@ -120,11 +120,25 @@ export default function Debt() {
       {loading ? (
         <p className="text-center text-slate-400">Loading…</p>
       ) : debts.length === 0 ? (
-        <div className="flex flex-col items-center rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center">
-          <Landmark className="mb-3 text-slate-300" size={32} />
-          <p className="text-slate-500">
-            No debts tracked yet. Add credit cards, loans, mortgages — anything you owe.
-          </p>
+        <div className="space-y-3">
+          <div className="flex flex-col items-center rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center">
+            <Landmark className="mb-3 text-slate-300" size={32} />
+            <p className="text-slate-500">
+              No debts tracked yet. Add credit cards, loans, mortgages — anything you owe.
+            </p>
+          </div>
+          <div className="flex items-start gap-3 rounded-xl border border-yellow-200 bg-yellow-50 p-4">
+            <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-yellow-100 text-yellow-700">
+              <Lightbulb size={15} />
+            </span>
+            <div className="text-sm">
+              <div className="font-semibold text-yellow-900">Pro tip</div>
+              <p className="mt-0.5 text-yellow-800">
+                Set a <strong>Due day</strong> on each debt so Salapi can warn you 7 days before
+                a payment is due — perfect for credit cards and Home Credit.
+              </p>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="space-y-4">
