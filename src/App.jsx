@@ -7,9 +7,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/tabs/Dashboard'
 import Investment from './pages/tabs/Investment'
 import Budget from './pages/tabs/Budget'
-import Bills from './pages/tabs/Bills'
 import Savings from './pages/tabs/Savings'
-import Subscriptions from './pages/tabs/Subscriptions'
 
 function App() {
   return (
@@ -27,10 +25,8 @@ function App() {
             }
           >
             <Route index element={<Dashboard />} />
-            <Route path="budget" element={<Budget />} />
-            <Route path="bills" element={<Bills />} />
+            <Route path="spending" element={<Budget />} />
             <Route path="savings" element={<Savings />} />
-            <Route path="subscriptions" element={<Subscriptions />} />
             <Route path="investment" element={<Investment />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
