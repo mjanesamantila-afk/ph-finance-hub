@@ -72,9 +72,12 @@ export default function DebtForm({ debt, onClose, onSaved }) {
   const showCalc = calc.totalPayable > 0 && Number(values.term_months) > 0
 
   function applyCalc() {
+    const total = String(Math.round(calc.totalPayable * 100) / 100)
     setValues((prev) => ({
       ...prev,
-      current_balance: String(Math.round(calc.totalPayable * 100) / 100),
+      // Set both so "Paid = Original − Current" stays consistent.
+      original_amount: total,
+      current_balance: total,
       monthly_payment: String(Math.round(calc.monthlyPayment * 100) / 100),
     }))
   }
